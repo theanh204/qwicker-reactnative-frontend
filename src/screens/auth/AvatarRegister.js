@@ -33,21 +33,19 @@ const AvatarRegister = ({ navigation }) => {
       alert("Permissions denied!");
     } else {
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        quality: 0.5,
+        mediaTypes: ["images"],
+        quality: 0.1,
         base64: true,
       });
       if (!result.canceled) {
         const uri = result.assets[0]?.uri;
-        const mintype = result.assets[0]?.mimeType;
-
         if (uri) {
           try {
             const base64 = await FileSystem.readAsStringAsync(uri, {
               encoding: FileSystem.EncodingType.Base64,
             });
             setImage(base64);
-            dispatch(addBasicField({ file: base64 }));
+            dispatch(addBasicField({ avatarBase64: base64 }));
           } catch (readError) {
             console.error("Error reading image as base64:", readError);
           }

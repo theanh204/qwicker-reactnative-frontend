@@ -11,8 +11,8 @@ import {
 
 const BasicInfoRegister = ({ navigation }) => {
   const dispatch = useDispatch();
-  const [lastName, setLastName] = useState("");
-  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("Nguyen");
+  const [firstName, setFirstName] = useState("Anh");
   const role = useSelector(getRole);
   const isFullfil = () => {
     return lastName.length > 0 && firstName.length > 0;

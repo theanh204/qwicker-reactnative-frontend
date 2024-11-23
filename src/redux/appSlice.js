@@ -1,11 +1,12 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import API, { baseEndpoints } from "../configs/API";
+import APIv3, { END_POINTS } from "../configs/APIv3";
 
 const appSlice = createSlice({
   name: "app",
   initialState: {
-    isUseAppBefore: false,
-    role: 2, // 1:user, 2:shipper,
+    isUseAppBefore: true,
+    role: 1, // 1:user, 2:shipper,
     typeChoosingLocation: 1, // 1: pick up, 2:deliver address,
     locationPermission: false,
     vehicles: [],
@@ -67,7 +68,7 @@ export const fetchVehicles = createAsyncThunk(
   "vehicles,getVehicles",
   async (form, { rejectWithValue }) => {
     try {
-      const res = await API.get(baseEndpoints["vehicles"]);
+      const res = await APIv3.get(END_POINTS["find-all-vehicel"]);
       return res.data?.result;
     } catch (e) {
       return rejectWithValue(e.response.data);
@@ -79,7 +80,7 @@ export const fetchProductCategories = createAsyncThunk(
   "categories,getCategories",
   async (form, { rejectWithValue }) => {
     try {
-      const res = await API.get(baseEndpoints["product-categories"]);
+      const res = await APIv3.get(END_POINTS["find-all-product-category"]);
 
       return res.data.result;
     } catch (e) {

@@ -12,8 +12,8 @@ import * as Shipper from "../../redux/shipperSlice";
 import * as BasicUser from "../../redux/basicUserSlice";
 // import { GoogleSignin, GoogleSigninButton, } from "@react-native-google-signin/google-signin";
 const Login = ({ navigation }) => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("theanh");
+  const [password, setPassword] = useState("12345678");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const role = useSelector(getRole);

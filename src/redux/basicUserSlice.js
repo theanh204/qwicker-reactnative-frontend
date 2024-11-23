@@ -6,15 +6,16 @@ import API, {
   basicUserEndpoints,
   ENDPOINTS,
   jobEndpoints,
-  paymentEndpoints,
   POST_ENDPOINTS,
 } from "../configs/API";
 import { objectToFormData } from "../features/ultils";
+import APIv3, { authAPIv3, END_POINTS, ENG_POINTS } from "../configs/APIv3";
+import { PROFILE_TYPE } from "../constants";
 
 const INIT_STATE = {
   user: {},
   status: "idle",
-  token: { access_token: "", refresh_token: "" },
+  token: { access_token: "", expiryTime: "" },
 };
 
 const basicUserSlice = createSlice({
@@ -39,8 +40,8 @@ const basicUserSlice = createSlice({
       .addCase(register.fulfilled, (state, action) => {
         if (action.payload) {
           state.user = action.payload.user;
-          state.token.access_token = action.payload.token.accessToken;
-          state.token.refresh_token = action.payload.token.refreshToken;
+          state.token.access_token = action.payload.token.token;
+          state.token.expiryTime = action.payload.token.expiryTime;
         }
         state.status = "idle";
       })
@@ -54,8 +55,8 @@ const basicUserSlice = createSlice({
       .addCase(login.fulfilled, (state, action) => {
         if (action.payload) {
           state.user = action.payload.user;
-          state.token.access_token = action.payload.token.accessToken;
-          state.token.refresh_token = action.payload.token.refreshToken;
+          state.token.access_token = action.payload.token.token;
+          state.token.expiryTime = action.payload.token.expiryTime;
         }
         state.status = "idle";
       })
@@ -81,22 +82,31 @@ export const register = createAsyncThunk(
   async (form, { rejectWithValue }) => {
     const formData = objectToFormData(form);
     try {
-      let user = await API.post(accountEndpoints["register-user"], formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-      const token = await API.post(accountEndpoints["login"], {
+      const createdAccount = await APIv3.post(
+        END_POINTS["register-user"],
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      const token = await APIv3.post(END_POINTS["token"], {
         username: form.username,
         password: form.password,
       });
 
+      let user = await authAPIv3(token?.data?.result?.token).get(
+        END_POINTS["find-user-profile"](PROFILE_TYPE.DEFAULT)
+      );
       return {
         user: user?.data?.result,
         token: token?.data?.result,
       };
     } catch (e) {
-      return rejectWithValue(e.response.data);
+      console.log(e);
+
+      return rejectWithValue(e?.response?.data);
     }
   }
 );
@@ -105,13 +115,13 @@ export const login = createAsyncThunk(
   "user,loginUser",
   async (data, { rejectWithValue }) => {
     try {
-      const token = await API.post(accountEndpoints["login"], {
+      const token = await APIv3.post(END_POINTS["token"], {
         username: data?.username,
         password: data?.password,
       });
 
-      let user = await authAPI(token.data?.result?.accessToken).get(
-        basicUserEndpoints["my-info"]
+      let user = await authAPIv3(token.data?.result?.token).get(
+        END_POINTS["find-user-profile"](PROFILE_TYPE.DEFAULT)
       );
 
       return {

@@ -1,11 +1,11 @@
 import { View, Text, TouchableOpacity, TextInput, Alert } from "react-native";
-import React, { useReducer, useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useSelector } from "react-redux";
 import { getRole } from "../../redux/appSlice";
 import { ROLE, ROUTES } from "../../constants";
-import API, { accountEndpoints } from "../../configs/API";
 import { ALERT_TYPE, Toast } from "react-native-alert-notification";
+import APIv3, { ENG_POINTS } from "../../configs/APIv3";
 
 const ConfimOtpRegister = ({ navigation, route }) => {
   const { email, username } = route.params;
@@ -29,8 +29,8 @@ const ConfimOtpRegister = ({ navigation, route }) => {
         const formData = new FormData();
         formData.append("email", email);
         formData.append("otp", Number(`${num1}${num2}${num3}${num4}`));
-        const res = await API.post(
-          accountEndpoints["verify-register-otp"],
+        const res = await APIv3.post(
+          ENG_POINTS["registration-verify-otp"],
           formData,
           {
             headers: {
@@ -77,9 +77,9 @@ const ConfimOtpRegister = ({ navigation, route }) => {
     const fetchData = async () => {
       try {
         const formData = new FormData();
-        formData.append("email", email);
+        formData.append("toEmail", email);
         formData.append("username", username);
-        await API.post(accountEndpoints["sent-otp"], formData, {
+        await APIv3.post(ENG_POINTS["registration-sent-otp"], formData, {
           headers: {
             "Content-Type": "multipart/form-data",
           },

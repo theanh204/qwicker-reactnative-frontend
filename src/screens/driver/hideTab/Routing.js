@@ -148,7 +148,7 @@ const Routing = ({ navigation, route }) => {
       alert("Permissions denied!");
     } else {
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ["images"],
         quality: 0.5,
         base64: true,
       });

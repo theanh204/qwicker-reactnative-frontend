@@ -1,18 +1,18 @@
 import { View, Text, TextInput, TouchableOpacity } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getRole } from "../../redux/appSlice";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ROLE, ROUTES } from "../../constants";
 import { addBasicField } from "../../redux/formRegisterSlice";
 import Spinner from "react-native-loading-spinner-overlay";
-import API, { accountEndpoints } from "../../configs/API";
 import { ALERT_TYPE, Toast } from "react-native-alert-notification";
+import APIv3, { END_POINTS } from "../../configs/APIv3";
 
 const AccountRegister = ({ navigation }) => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("theanh1");
+  const [password, setPassword] = useState("12345678");
+  const [email, setEmail] = useState("2151013002anh@ou.edu.vn");
   const [loading, setLoading] = useState(false);
 
   const role = useSelector(getRole);
@@ -20,19 +20,56 @@ const AccountRegister = ({ navigation }) => {
   const isFullfil = () => {
     return username.length > 0 && password.length > 0 && email.length > 0;
   };
-
+  useEffect(() => {
+    Toast.show({
+      type: ALERT_TYPE.WARNING,
+      title: "Tài khoản đã tồn tại",
+      textBody: "Hãy thử lại với tài khoản khác",
+    });
+  });
   const handleNext = async () => {
     if (isFullfil()) {
       try {
         setLoading(true);
         const formData = new FormData();
+        formData.append("username", username);
+        const result1 = await APIv3.post(
+          END_POINTS["check-username-exists"],
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+        if (result1.data.result.exist) {
+          Toast.show({
+            type: ALERT_TYPE.WARNING,
+            title: "Tài khoản đã tồn tại",
+            textBody: "Hãy thử lại với tài khoản khác",
+          });
+          return;
+        }
+        formData.delete("username");
         formData.append("email", email);
         formData.append("username", username);
-        await API.post(accountEndpoints["check-account"], formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        });
+        const result2 = await APIv3.post(
+          END_POINTS["check-email-exists"],
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+        if (result2.data.result.exist) {
+          Toast.show({
+            type: ALERT_TYPE.WARNING,
+            title: "Email đã tồn tại",
+            textBody: "Hãy thử lại với Email khác",
+          });
+          return;
+        }
         dispatch(
           addBasicField({
             username: username,
@@ -40,28 +77,12 @@ const AccountRegister = ({ navigation }) => {
             email: email,
           })
         );
-        navigation.navigate(ROUTES.CONFIRM_OTP_REGISTER, {
+        navigation.navigate(ROUTES.AVATAR_REGISTER, {
           email: email,
           username: username,
         });
       } catch (err) {
-        console.log(err.response);
-        if (err.response.status === 409) {
-          const code = err.response.data["code"];
-          if (code === 1002) {
-            Toast.show({
-              type: ALERT_TYPE.WARNING,
-              title: "Tài khoản đã tồn tại",
-              textBody: "Hãy thử lại với tài khoản khác",
-            });
-          } else if (code === 1005) {
-            Toast.show({
-              type: ALERT_TYPE.WARNING,
-              title: "Email đã tồn tại",
-              textBody: "Hãy thử lại với Email khác",
-            });
-          }
-        }
+        console.log(err?.response);
       } finally {
         setLoading(false);
       }

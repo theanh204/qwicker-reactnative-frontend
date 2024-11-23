@@ -6,6 +6,7 @@ import SHIPMENTYPE from "./shipmentType";
 import JOBSTATUS from "./jobstatus";
 import POSTSTATUS from "./postStatus";
 import STATISTIC_TYPE from "./statisticType";
+import PROFILE_TYPE from "./profileType";
 export {
   ROUTES,
   COLORS,
@@ -15,4 +16,5 @@ export {
   JOBSTATUS,
   POSTSTATUS,
   STATISTIC_TYPE,
+  PROFILE_TYPE,
 };

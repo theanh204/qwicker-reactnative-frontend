@@ -30,7 +30,7 @@ const DriverInfoRegister = ({ navigation }) => {
       alert("Permissions denied!");
     } else {
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ["images"],
         quality: 1,
         base64: true,
       });
@@ -74,7 +74,7 @@ const DriverInfoRegister = ({ navigation }) => {
     if (isFullfil()) {
       dispatch(
         addAdditionalField({
-          identityFFile: image,
+          identityFBase64: image,
           vehicleId: selectedVehicle,
           vehicleNumber: vehicleNumber,
         })

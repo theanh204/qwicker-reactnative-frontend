@@ -6,13 +6,11 @@ import {
   TextInput,
   FlatList,
   TouchableHighlight,
-  Alert,
 } from "react-native";
 import React, { useEffect, useReducer, useRef, useState } from "react";
 import {
   Feather,
   AntDesign,
-  Ionicons,
   MaterialCommunityIcons,
   FontAwesome,
 } from "@expo/vector-icons";
@@ -20,8 +18,6 @@ import CheckBox from "react-native-check-box";
 import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchProductCategories, getCategories } from "../../redux/appSlice";
-import { unwrapResult } from "@reduxjs/toolkit";
 import { getProduct, setProduct } from "../../redux/productSlice";
 
 const massType = [
@@ -32,9 +28,8 @@ const massType = [
 
 const OrderDetail = ({ navigation }) => {
   const dispatch = useDispatch();
-  const initCategories = useSelector(getCategories);
+  const categories = useSelector(getCategories);
   const initProduct = useSelector(getProduct);
-  const [categories, setCategories] = useState(initCategories);
   const inputRef = useRef();
   const [productDetail, updateProductDetail] = useReducer(
     (prve, next) => ({
@@ -55,7 +50,7 @@ const OrderDetail = ({ navigation }) => {
       alert("Permissions denied!");
     } else {
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ["images"],
         quality: 1,
         base64: true,
       });
@@ -82,14 +77,6 @@ const OrderDetail = ({ navigation }) => {
   };
 
   useEffect(() => {
-    //Fetch Product Categories
-    if (categories.length === 0) {
-      dispatch(fetchProductCategories())
-        .then(unwrapResult)
-        .then((res) => setCategories(res))
-        .catch((e) => console.log(e));
-    }
-
     // Header option
     navigation.setOptions({
       headerLeft: () => (
