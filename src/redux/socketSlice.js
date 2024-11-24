@@ -1,11 +1,6 @@
-import {
-  createSlice,
-  createSelector,
-  current,
-  createAsyncThunk,
-} from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import SocketClient from "../socket/SocketClient";
-import { webSocketUrl } from "../configs/API";
+import { webSocketUrl } from "../configs/APIv3";
 
 const INIT_SOCKET = {
   ws: null,
@@ -35,7 +30,7 @@ export const connectWebsocket = createAsyncThunk(
       await socketClient.awaitConnect();
       return socketClient;
     } catch (e) {
-      return rejectWithValue(e.response.data);
+      return rejectWithValue(e);
     }
   }
 );

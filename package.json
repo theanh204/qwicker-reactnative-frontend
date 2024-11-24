@@ -57,6 +57,7 @@
     "react-native-svg": "15.8.0",
     "react-native-tab-view": "^3.5.2",
     "react-native-timeline-flatlist": "^0.8.0",
+    "react-native-toast-message": "^2.2.1",
     "react-native-virtualized-view": "^1.0.0",
     "react-native-webview": "13.12.4",
     "react-redux": "^9.0.4",
@@ -68,6 +69,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.24.0",
+    "@types/sockjs-client": "^1.5.4",
     "tailwindcss": "3.3.2"
   },
   "private": true

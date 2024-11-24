@@ -1,7 +1,6 @@
 import axios from "axios";
-// export const BASE_URL = "http://192.168.100.16:8888/api/v3/";
-export const BASE_URL = "http://192.168.23.254:8888/api/v3/";
-export const webSocketUrl = `${BASE_URL}ws`;
+export const BASE_URL = "http://192.168.100.52:8888/api/v3/";
+export const webSocketUrl = "http://192.168.100.52:8088/websocket/ws";
 export const END_POINTS = {
   "check-username-exists": "identity/accounts/check-username-exists",
   "check-email-exists": "identity/accounts/check-email-exists",
@@ -11,6 +10,7 @@ export const END_POINTS = {
   "find-all-vehicel": "post/vehicles",
   "find-all-product-category": "post/product-category",
   "find-user-profile": (type) => `profile/users/my-profile?type=${type}`,
+  "find-shipper-profile": "profile/shippers/my-profile",
   token: "/identity/auth/token",
 };
 

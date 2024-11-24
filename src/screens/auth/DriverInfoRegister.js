@@ -18,10 +18,9 @@ import { addAdditionalField } from "../../redux/formRegisterSlice";
 import { unwrapResult } from "@reduxjs/toolkit";
 
 const DriverInfoRegister = ({ navigation }) => {
-  const initVehicles = useSelector(getVehicles);
+  const vehicles = useSelector(getVehicles);
   const dispatch = useDispatch();
-  const [vehicles, setVehicles] = useState(initVehicles);
-  const [vehicleNumber, setVehicleNumber] = useState("");
+  const [vehicleNumber, setVehicleNumber] = useState("29A-23487");
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [image, setImage] = useState(null);
   const pickImage = async () => {
@@ -61,20 +60,12 @@ const DriverInfoRegister = ({ navigation }) => {
     );
   };
 
-  useEffect(() => {
-    if (vehicles.length === 0) {
-      dispatch(fetchVehicles())
-        .then(unwrapResult)
-        .then((res) => setVehicles(res))
-        .catch((e) => console.log(e));
-    }
-  }, []);
-
   const handleNext = () => {
     if (isFullfil()) {
       dispatch(
         addAdditionalField({
           identityFBase64: image,
+          identityBBase64: image,
           vehicleId: selectedVehicle,
           vehicleNumber: vehicleNumber,
         })

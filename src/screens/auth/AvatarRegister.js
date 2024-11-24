@@ -16,8 +16,8 @@ import * as FileSystem from "expo-file-system";
 import * as Shipper from "../../redux/shipperSlice";
 import * as BasicUser from "../../redux/basicUserSlice";
 import { unwrapResult } from "@reduxjs/toolkit";
-import { ALERT_TYPE, Toast } from "react-native-alert-notification";
 import Spinner from "react-native-loading-spinner-overlay";
+import Toast from "react-native-toast-message";
 
 const AvatarRegister = ({ navigation }) => {
   const basicAccountInfo = useSelector(getBasicAccountInfo);
@@ -67,14 +67,11 @@ const AvatarRegister = ({ navigation }) => {
             dispatch(resetFormRegisterSlice());
           })
           .catch((e) => {
-            console.log(e);
-
             setLoading(false);
-            const msg = e["message"];
             Toast.show({
-              type: ALERT_TYPE.WARNING,
-              title: "Đăng ký thất bại",
-              textBody: msg,
+              type: "error",
+              text1: "Đăng ký thất bại",
+              text2: e,
             });
           });
       } else {
@@ -87,13 +84,11 @@ const AvatarRegister = ({ navigation }) => {
           })
           .catch((e) => {
             setLoading(false);
-            const msg = e["message"];
-            console.log(e);
             setLoading(false);
             Toast.show({
-              type: ALERT_TYPE.WARNING,
-              title: "Đăng ký thất bại",
-              textBody: msg,
+              type: "error",
+              text1: "Đăng ký thất bại",
+              text2: e,
             });
           });
       }

@@ -9,6 +9,7 @@ import API, {
   virtualearthDriving,
 } from "../configs/API";
 import { getCurrentLocation, objectToFormData } from "../features/ultils";
+import APIv3, { authAPIv3, END_POINTS } from "../configs/APIv3";
 
 const INIT_STATE = {
   user: {},
@@ -42,10 +43,6 @@ const shipperSlice = createSlice({
         state.status = "pending";
       })
       .addCase(register.fulfilled, (state, action) => {
-        if (action.payload) {
-          state.user = action.payload.user;
-          state.token = action.payload.token;
-        }
         state.status = "idle";
       })
       .addCase(register.rejected, (state, action) => {
@@ -58,8 +55,8 @@ const shipperSlice = createSlice({
       .addCase(login.fulfilled, (state, action) => {
         if (action.payload) {
           state.user = action.payload.user;
-          state.token.access_token = action.payload.token.accessToken;
-          state.token.refresh_token = action.payload.token.refreshToken;
+          state.token.access_token = action.payload.token.token;
+          state.token.expiryTime = action.payload.token.expiryTime;
         }
         state.status = "idle";
       })
@@ -76,21 +73,19 @@ const shipperSlice = createSlice({
 
 export const register = createAsyncThunk(
   "user,registerUser",
-  async (obj, { rejectWithValue }) => {
-    const formData = objectToFormData(obj);
+  async (form, { rejectWithValue }) => {
+    const formData = objectToFormData(form);
     try {
-      let user = await API.post(
-        accountEndpoints["register-shipper"],
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      await APIv3.post(END_POINTS["register-user"], formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
       return;
     } catch (e) {
-      return rejectWithValue(e.response.data);
+      console.log(e);
+
+      return rejectWithValue(e?.response?.data);
     }
   }
 );
@@ -99,13 +94,13 @@ export const login = createAsyncThunk(
   "user,loginUser",
   async (data, { rejectWithValue }) => {
     try {
-      const token = await API.post(accountEndpoints["login"], {
+      const token = await APIv3.post(END_POINTS["token"], {
         username: data?.username,
         password: data?.password,
       });
 
-      let user = await authAPI(token.data?.result?.accessToken).get(
-        shipperEndpoints["my-info"]
+      let user = await authAPIv3(token.data?.result?.token).get(
+        END_POINTS["find-shipper-profile"]
       );
 
       return {
@@ -263,11 +258,17 @@ export const setOnline = createAsyncThunk(
   async (data, { getState, rejectWithValue, dispatch }) => {
     const { ws, shipperId } = data;
     try {
+      const newLocation = await getCurrentLocation();
+      console.log(ws.connected);
+      console.log(shipperId);
+      console.log(newLocation);
+
       if (ws.connected) {
         return setInterval(async () => {
           const newLocation = await getCurrentLocation();
           const { shipperSlice } = getState();
           const { location } = shipperSlice;
+          console.log(newLocation);
 
           const body = {
             messageType: "UPDATE_SHIPPER_LOCATION",

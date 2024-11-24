@@ -6,11 +6,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { ROLE, ROUTES } from "../../constants";
 import { addBasicField } from "../../redux/formRegisterSlice";
 import Spinner from "react-native-loading-spinner-overlay";
-import { ALERT_TYPE, Toast } from "react-native-alert-notification";
 import APIv3, { END_POINTS } from "../../configs/APIv3";
+import Toast from "react-native-toast-message";
 
 const AccountRegister = ({ navigation }) => {
-  const [username, setUsername] = useState("theanh1");
+  const [username, setUsername] = useState("Shipper");
   const [password, setPassword] = useState("12345678");
   const [email, setEmail] = useState("2151013002anh@ou.edu.vn");
   const [loading, setLoading] = useState(false);
@@ -20,13 +20,6 @@ const AccountRegister = ({ navigation }) => {
   const isFullfil = () => {
     return username.length > 0 && password.length > 0 && email.length > 0;
   };
-  useEffect(() => {
-    Toast.show({
-      type: ALERT_TYPE.WARNING,
-      title: "Tài khoản đã tồn tại",
-      textBody: "Hãy thử lại với tài khoản khác",
-    });
-  });
   const handleNext = async () => {
     if (isFullfil()) {
       try {
@@ -42,11 +35,13 @@ const AccountRegister = ({ navigation }) => {
             },
           }
         );
+        console.log(result1);
+
         if (result1.data.result.exist) {
           Toast.show({
-            type: ALERT_TYPE.WARNING,
-            title: "Tài khoản đã tồn tại",
-            textBody: "Hãy thử lại với tài khoản khác",
+            type: "error",
+            text1: "Tài khoản đã tồn tại",
+            text2: "Hãy thử lại với tài khoản khác",
           });
           return;
         }
@@ -64,9 +59,9 @@ const AccountRegister = ({ navigation }) => {
         );
         if (result2.data.result.exist) {
           Toast.show({
-            type: ALERT_TYPE.WARNING,
-            title: "Email đã tồn tại",
-            textBody: "Hãy thử lại với Email khác",
+            type: "error",
+            text1: "Email đã tồn tại",
+            text2: "Hãy thử lại với Email khác",
           });
           return;
         }
@@ -77,12 +72,14 @@ const AccountRegister = ({ navigation }) => {
             email: email,
           })
         );
-        navigation.navigate(ROUTES.AVATAR_REGISTER, {
-          email: email,
-          username: username,
-        });
+        // navigation.navigate(ROUTES.CONFIRM_OTP_REGISTER, {
+        //   email: email,
+        //   username: username,
+        // });
+        navigation.navigate(ROUTES.DRIVER_INFO_REGISTER);
       } catch (err) {
-        console.log(err?.response);
+        setLoading(false);
+        console.log(err);
       } finally {
         setLoading(false);
       }

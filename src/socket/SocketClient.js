@@ -1,4 +1,3 @@
-import React from 'react';
 import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 class SocketClient {
@@ -6,10 +5,13 @@ class SocketClient {
     this.url = url;
     this.jwt = jwt;
     this.client = new Client();
-    const socket = new SockJS(url + `?token=${jwt}`);
+    const socket = new SockJS(url);
     this.subscriptions = new Map();
     this.client.configure({
       webSocketFactory: () => socket,
+      connectHeaders: {
+        Authorization: `Bearer ${jwt}`,
+      },
       debug: (str) => {
         console.log(str);
       },
