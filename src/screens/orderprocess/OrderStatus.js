@@ -23,6 +23,7 @@ import { Easing } from "react-native-reanimated";
 import {
   averageRatingPoint,
   formatCurrency,
+  getVNPaymentMethodName,
   uuidToNumber,
 } from "../../features/ultils";
 import { JOBSTATUS, POSTSTATUS, ROUTES } from "../../constants";
@@ -93,7 +94,6 @@ const OrderStatus = ({ navigation, route }) => {
       headerTitle: title,
     });
   }, [post]);
-  console.log(post);
   const getRoutePaths = (p1, p2) => {
     setLoading(true);
     dispatch(
@@ -157,8 +157,11 @@ const OrderStatus = ({ navigation, route }) => {
         ws.subscribe(chanel, (message) => {
           const messageBody = JSON.parse(message.body);
           if (messageBody.messageType === "FOUND_SHIPPER") {
-            setPost(messageBody.post);
-            setShipper(messageBody.shipper);
+            setPost({
+              ...JSON.parse(messageBody.postResponse),
+              status: JOBSTATUS.FOUND_SHIPPER,
+            });
+            setShipper(JSON.parse(messageBody.shipperResponse));
             setLoading(true);
             dispatch(
               getCurrentShipperLocation({
@@ -291,13 +294,13 @@ const OrderStatus = ({ navigation, route }) => {
   };
   return (
     <View className="flex-1 relative">
-      <Spinner
+      {/* <Spinner
         visible={loading}
         spinnerKey={post?.id}
         size="large"
         animation="fade"
         className="z-50 absolute left-0 top-0 right-0 bottom-0"
-      />
+      /> */}
 
       {JOBSTATUS.PENDING === post?.status ? (
         <MapView
@@ -463,7 +466,9 @@ const OrderStatus = ({ navigation, route }) => {
                   </Text>
                   {post?.payment?.posterPay && (
                     <View className="ml-2 p-1 rounded-md bg-gray-300">
-                      <Text>{post?.payment?.method?.name}</Text>
+                      <Text>
+                        {getVNPaymentMethodName(post?.payment?.paymentMethod)}
+                      </Text>
                     </View>
                   )}
                 </View>
@@ -484,7 +489,9 @@ const OrderStatus = ({ navigation, route }) => {
                   </Text>
                   {!post?.payment?.posterPay && (
                     <View className="ml-2 p-1 rounded-md bg-gray-300">
-                      <Text>{post?.payment?.method.name}</Text>
+                      <Text>
+                        {getVNPaymentMethodName(post?.payment?.paymentMethod)}
+                      </Text>
                     </View>
                   )}
                 </View>
@@ -540,7 +547,7 @@ const OrderStatus = ({ navigation, route }) => {
         {/* -----------------Fee---------------- */}
         <View className="flex-row justify-between items-center bg-white rounded-lg px-4 py-5 mb-14 ">
           <Text className="text-base font-semibold text-gray-600">
-            {post?.payment?.method.name}
+            {getVNPaymentMethodName(post?.payment?.paymentMethod)}
           </Text>
           <View className="flex-row space-x-2 items-center">
             <Text className="text-lg font-bold">

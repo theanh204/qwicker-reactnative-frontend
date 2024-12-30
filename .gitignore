@@ -160,3 +160,6 @@ vendor/
 %ProgramData%
 .expo
 .idea
+
+/android
+/ios

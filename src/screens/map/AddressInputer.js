@@ -96,7 +96,7 @@ const AddressInputer = ({ navigation }) => {
           <Entypo name="circle" size={12} color="#3422F1" />
         </View>
         <TextInput
-          className="text-lg mr-[-18] basis-10/12 pr-8 pl-2"
+          className="text-lg mr-[-18] basis-10/12 pr-8 pl-2 pb-2"
           value={txt}
           onChangeText={setTxt}
           placeholder={

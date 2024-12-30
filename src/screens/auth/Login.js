@@ -15,11 +15,13 @@ import * as Location from "expo-location";
 
 // import { GoogleSignin, GoogleSigninButton, } from "@react-native-google-signin/google-signin";
 const Login = ({ navigation }) => {
-  const [username, setUsername] = useState("Shipper");
+  const role = useSelector(getRole);
+  const [username, setUsername] = useState(
+    role === ROLE.TRADITIONAL_USER ? "theanh" : "shipper"
+  );
   const [password, setPassword] = useState("12345678");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const role = useSelector(getRole);
   const dispatch = useDispatch();
   const handleLogin = () => {
     if (username.length === 0 || password.length === 0) {
@@ -46,12 +48,12 @@ const Login = ({ navigation }) => {
                   screen: ROUTES.HOME_DRAWER,
                 });
               } else {
-                dispatch(
-                  Shipper.setOnline({ ws: ws, shipperId: res.user.accountId })
-                );
-                // navigation.navigate(ROUTES.DRIVER_NAVIGATION, {
-                //   screen: ROUTES.FIND_ORDER_DRIVER_TAB,
-                // });
+                // dispatch(
+                //   Shipper.setOnline({ ws: ws, shipperId: res.user.accountId })
+                // );
+                navigation.navigate(ROUTES.DRIVER_NAVIGATION, {
+                  screen: ROUTES.FIND_ORDER_DRIVER_TAB,
+                });
                 // if (res.user.verified) {
                 //   navigation.navigate(ROUTES.DRIVER_NAVIGATION, {
                 //     screen: ROUTES.FIND_ORDER_DRIVER_TAB,

@@ -9,10 +9,9 @@ import {
   Entypo,
   Foundation,
 } from "@expo/vector-icons";
-import { ROUTES, SHIPMENTYPE } from "../../constants";
+import { PAYMENT_METHOD, ROUTES, SHIPMENTYPE } from "../../constants";
 import RBSheet from "react-native-raw-bottom-sheet";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchPaymentMethods, getPaymentMethods } from "../../redux/appSlice";
 import { unwrapResult } from "@reduxjs/toolkit";
 import {
   INIT_PAYMENT,
@@ -46,8 +45,6 @@ const AddMoreOrderDetail = ({ navigation }) => {
   const isProductFormFulFill = useSelector(isProductFulFill);
   // Payment method
   const paymentMethodBTS = useRef();
-  const initPaymentMethod = useSelector(getPaymentMethods);
-  const [paymentMethod, setPaymentMethod] = useState(initPaymentMethod);
   const [showPayer, setShowPayer] = useState(false);
   const [loading, setLoading] = useState(false);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(1.1);
@@ -91,16 +88,13 @@ const AddMoreOrderDetail = ({ navigation }) => {
 
     switch (selectedPaymentMethod) {
       case 0:
-        const a = paymentMethod.find((ele) => ele?.name === "Vn Pay");
-        data.method = a.id;
+        data.method = PAYMENT_METHOD.VNPAY;
         break;
       case 1.1:
-        let b = paymentMethod.find((ele) => ele?.name === "Tiền Mặt");
-        data.method = b.id;
+        data.method = PAYMENT_METHOD.CASH;
         break;
       case 1.2:
-        let c = paymentMethod.find((ele) => ele?.name === "Tiền Mặt");
-        data.method = c.id;
+        data.method = PAYMENT_METHOD.CASH;
         data.isPosterPay = false;
         break;
     }
@@ -152,15 +146,6 @@ const AddMoreOrderDetail = ({ navigation }) => {
 
   // Fetch payment method
   useEffect(() => {
-    if (paymentMethod === undefined || paymentMethod.length === 0) {
-      dispatch(fetchPaymentMethods())
-        .then(unwrapResult)
-        .then((res) => {
-          setPaymentMethod(res);
-        })
-        .catch((e) => console.log(e));
-    }
-
     // Set header option
     navigation.getParent().setOptions({
       headerShown: false,
@@ -184,18 +169,20 @@ const AddMoreOrderDetail = ({ navigation }) => {
     placeOrderBTS.current.close();
     setLoading(true);
 
-    const data = {
-      access_token: access_token,
-      formData: order,
-    };
-    dispatch(postJob(data))
+    dispatch(
+      postJob({
+        access_token: access_token,
+        formData: order,
+      })
+    )
       .then(unwrapResult)
       .then((res) => {
         setLoading(false);
-        dispatch(resetOrderSlice());
-        dispatch(resetPaymentSlice());
-        dispatch(resetProductSlice());
-        dispatch(resetShipmentSlice());
+
+        // dispatch(resetOrderSlice());
+        // dispatch(resetPaymentSlice());
+        // dispatch(resetProductSlice());
+        // dispatch(resetShipmentSlice());
         if (selectedPaymentMethod === 1.1 || selectedPaymentMethod === 1.2)
           navigation.navigate(ROUTES.ORDER_STATUS_STACK, { orderId: res.id });
         else {

@@ -5,12 +5,12 @@ import {
   Entypo,
   Foundation,
   Ionicons,
-  MaterialCommunityIcons,
   Octicons,
 } from "@expo/vector-icons";
+import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  getDuration,
+  getDistance,
   getNumShipperJoined,
   getShipperProfile,
   getToken,
@@ -44,13 +44,12 @@ const PickOrder = ({ route, navigation }) => {
   const ws = useSelector(getSocket);
   useEffect(() => {
     setLoading(true);
-    const form = {
-      lat1: pickupLocation.latitude,
-      long1: pickupLocation.longitude,
-      lat2: dropLocation.latitude,
-      long2: dropLocation.longitude,
-    };
-    dispatch(getDuration(form))
+    dispatch(
+      getDistance({
+        origin: `${pickupLocation.latitude},${pickupLocation.longitude}`,
+        destination: `${dropLocation.latitude},${dropLocation.longitude}`,
+      })
+    )
       .then(unwrapResult)
       .then((res) => {
         setDistance(res);
@@ -166,10 +165,7 @@ const PickOrder = ({ route, navigation }) => {
       <Spinner visible={loading} size="large" animation="fade" />
       <View className="px-4 bg-[#3422F1] pb-8">
         <Text className="text-lg font-medium text-white ">Nhận đơn ngay</Text>
-        <Text className="text-base text-white my-1">
-          Cách ~ {distance && Math.round(distance?.travelDistance)}{" "}
-          {distance?.distanceUnit}
-        </Text>
+        <Text className="text-base text-white my-1">Cách ~ {distance}</Text>
       </View>
       <View className="relative  flex-1">
         <View className="absolute left-0 right-0 px-4 top-[-20] z-10">
@@ -280,17 +276,13 @@ const PickOrder = ({ route, navigation }) => {
                 đ{formatCurrency(payment.price)}
               </Text>
               <Text className="text-base font-medium text-gray-400 ">
-                {payment?.method.name}
+                {payment?.paymentMethod}
               </Text>
             </View>
           </View>
           {/* ----------Product type---------- */}
           <View className="flex-row bg-white rounded-lg border border-gray-300 p-4 mb-2 space-x-4 items-center">
-            <MaterialCommunityIcons
-              name="format-list-bulleted-type"
-              size={24}
-              color="black"
-            />
+            <FontAwesome5 name="bars" size={24} color="#3422F1" />
             <View className="flex-col">
               <Text className="text-xl font-semibold">
                 {product.category.name}

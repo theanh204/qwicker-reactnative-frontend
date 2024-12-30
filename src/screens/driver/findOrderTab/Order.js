@@ -1,6 +1,6 @@
 import { View, Text, TouchableOpacity } from "react-native";
 import React from "react";
-import { ROUTES } from "../../../constants";
+import { DELIVERY_TIME_TYPE, ROUTES } from "../../../constants";
 import {
   Entypo,
   Foundation,
@@ -20,9 +20,9 @@ const Order = ({ data }) => {
   const navigation = useNavigation();
   var moment = require("moment-timezone");
   moment.tz.setDefault("Asia/Ho_Chi_Minh");
-  const orderTime = moment(p.pickupDatetime || p.postTime);
+  const orderTime = moment(p.deliveryTimeRequest || p.postTime);
   const getType = () => {
-    if (p.type === "Now") {
+    if (p.deliveryTimeType === DELIVERY_TIME_TYPE.NOW) {
       return "now";
     } else {
       const restTime = getDiffBetweenTwoTime(p.pickupDatetime || p.postTime);
@@ -99,7 +99,7 @@ const Order = ({ data }) => {
       <View className="flex-row justify-between items-center p-4 ">
         <View className="flex-row items-center space-x-1">
           <Ionicons name="cash-outline" size={24} color="#3422F1" />
-          <Text>{payment.method.name}</Text>
+          <Text>{payment.paymentMethod}</Text>
         </View>
         <Text className="text-xl font-semibold">
           đ{formatCurrency(payment.price)}

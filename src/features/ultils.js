@@ -1,4 +1,4 @@
-import { JOBSTATUS } from "../constants";
+import { JOBSTATUS, PAYMENT_METHOD } from "../constants";
 import * as Location from "expo-location";
 
 export const formatDate = (date, time) => {
@@ -239,4 +239,10 @@ export function averageRatingPoint(ratings) {
     { totalPoint: 0, num: 0 }
   );
   return result.totalPoint / result.num;
+}
+
+export function getVNPaymentMethodName(method) {
+  if (method === PAYMENT_METHOD.VNPAY) {
+    return "VnPay";
+  } else return "Tien Mat";
 }

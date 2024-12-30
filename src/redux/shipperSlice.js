@@ -6,10 +6,14 @@ import API, {
   accountEndpoints,
   authAPI,
   shipperEndpoints,
-  virtualearthDriving,
 } from "../configs/API";
 import { getCurrentLocation, objectToFormData } from "../features/ultils";
-import APIv3, { authAPIv3, END_POINTS } from "../configs/APIv3";
+import APIv3, {
+  authAPIv3,
+  END_POINTS,
+  googMapDistanceMatrix,
+  virtualearthDrivingv3,
+} from "../configs/APIv3";
 
 const INIT_STATE = {
   user: {},
@@ -130,16 +134,15 @@ export const viewJob = createAsyncThunk(
   }
 );
 
-export const getDuration = createAsyncThunk(
-  "duration, getDuration",
+export const getDistance = createAsyncThunk(
+  "distance, getDistance",
   async (data, { rejectWithValue }) => {
-    const { lat1, long1, lat2, long2 } = data;
+    const { origin, destination } = data;
     try {
-      const res = await virtualearthDriving(lat1, long1, lat2, long2).get();
-      return res.data.resourceSets[0].resources[0];
+      const res = await googMapDistanceMatrix(origin, destination).get();
+      return res.data?.rows[0].elements[0].distance.text;
     } catch (err) {
-      console.log(err);
-      return rejectWithValue(err?.response);
+      return rejectWithValue(err);
     }
   }
 );
@@ -258,17 +261,11 @@ export const setOnline = createAsyncThunk(
   async (data, { getState, rejectWithValue, dispatch }) => {
     const { ws, shipperId } = data;
     try {
-      const newLocation = await getCurrentLocation();
-      console.log(ws.connected);
-      console.log(shipperId);
-      console.log(newLocation);
-
       if (ws.connected) {
         return setInterval(async () => {
           const newLocation = await getCurrentLocation();
           const { shipperSlice } = getState();
           const { location } = shipperSlice;
-          console.log(newLocation);
 
           const body = {
             messageType: "UPDATE_SHIPPER_LOCATION",
@@ -289,8 +286,8 @@ export const setOnline = createAsyncThunk(
         }, 5000);
       }
     } catch (err) {
-      console.log(err);
-      return rejectWithValue(err?.response);
+      console.error("Error in setOnline:", err);
+      return rejectWithValue(err?.response || "An unexpected error occurred");
     }
   }
 );

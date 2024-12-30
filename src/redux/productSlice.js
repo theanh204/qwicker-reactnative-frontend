@@ -7,10 +7,17 @@ const INIT_PRODUCT = {
   file: null,
 };
 
+const INIT_PRODUCT2 = {
+  categoryId: "2",
+  quantity: 1,
+  mass: "Nhẹ hơn 10 kg",
+  file: "/92haksdfslkasdfkljgdlks",
+};
+
 const productSlice = createSlice({
   name: "productSlice",
   initialState: {
-    product: INIT_PRODUCT,
+    product: INIT_PRODUCT2,
     status: "idle",
   },
   reducers: {

@@ -1,4 +1,11 @@
-import { View, Text, Dimensions, TouchableOpacity, Image } from "react-native";
+import {
+  View,
+  Text,
+  Dimensions,
+  TouchableOpacity,
+  Image,
+  StyleSheet,
+} from "react-native";
 import React, { useCallback, useEffect, useState } from "react";
 import MapView, { Circle, Marker, Polyline } from "react-native-maps";
 import { MaterialIcons, Entypo } from "@expo/vector-icons";
@@ -8,6 +15,7 @@ import { getCurrentLocation } from "../../../features/ultils";
 import { LOCATION, ROUTES } from "../../../constants";
 import { getDuration, getShipperProfile } from "../../../redux/shipperSlice";
 import { unwrapResult } from "@reduxjs/toolkit";
+// import Mapbox from "@rnmapbox/maps";
 
 const { width, height } = Dimensions.get("window");
 const ASPECT_RATIO = width / height;
@@ -19,6 +27,20 @@ const INIT_REGION = {
   latitudeDelta: LATITUDE_DELTA,
   longitudeDelta: LONGITUDE_DELTA,
 };
+const styles = StyleSheet.create({
+  page: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  container: {
+    height: 300,
+    width: 300,
+  },
+  map: {
+    flex: 1,
+  },
+});
 const ViewDistance = ({ navigation, route }) => {
   let { startPoint, endPoint, locationType, data } = route.params;
   const dispatch = useDispatch();
@@ -27,47 +49,47 @@ const ViewDistance = ({ navigation, route }) => {
   const [loading, setLoading] = useState(false);
   const [routeCoordinates, setRouteCoordinates] = useState([]);
   const [duration, setDuration] = useState();
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-      setRegion({
-        latitude: (startPoint.latitude + endPoint.latitude) / 2,
-        longitude: (startPoint.longitude + endPoint.longitude) / 2,
-        latitudeDelta: Math.abs(startPoint.latitude - endPoint.latitude) * 1.5,
-        longitudeDelta:
-          Math.abs(startPoint.longitude - endPoint.longitude) * 1.5,
-      });
-      dispatch(
-        getDuration({
-          lat1: startPoint.latitude,
-          long1: startPoint.longitude,
-          lat2: endPoint.latitude,
-          long2: endPoint.longitude,
-        })
-      )
-        .then(unwrapResult)
-        .then((res) => {
-          setDuration(res);
-          const route = res.routeLegs[0].itineraryItems;
-          const routePath = route.map((route) => ({
-            latitude: route.maneuverPoint.coordinates[0],
-            longitude: route.maneuverPoint.coordinates[1],
-          }));
-          setRouteCoordinates([
-            { latitude: startPoint.latitude, longitude: startPoint.longitude },
-            ...routePath,
-            { latitude: endPoint.latitude, longitude: endPoint.longitude },
-          ]);
-          setLoading(false);
-        });
-    } catch (e) {
-      setLoading(false);
-      console.log(e);
-    }
-  };
-  useEffect(() => {
-    fetchData();
-  }, [locationType, data]);
+  // const fetchData = async () => {
+  //   try {
+  //     setLoading(true);
+  //     setRegion({
+  //       latitude: (startPoint.latitude + endPoint.latitude) / 2,
+  //       longitude: (startPoint.longitude + endPoint.longitude) / 2,
+  //       latitudeDelta: Math.abs(startPoint.latitude - endPoint.latitude) * 1.5,
+  //       longitudeDelta:
+  //         Math.abs(startPoint.longitude - endPoint.longitude) * 1.5,
+  //     });
+  //     dispatch(
+  //       getDuration({
+  //         lat1: startPoint.latitude,
+  //         long1: startPoint.longitude,
+  //         lat2: endPoint.latitude,
+  //         long2: endPoint.longitude,
+  //       })
+  //     )
+  //       .then(unwrapResult)
+  //       .then((res) => {
+  //         setDuration(res);
+  //         const route = res.routeLegs[0].itineraryItems;
+  //         const routePath = route.map((route) => ({
+  //           latitude: route.maneuverPoint.coordinates[0],
+  //           longitude: route.maneuverPoint.coordinates[1],
+  //         }));
+  //         setRouteCoordinates([
+  //           { latitude: startPoint.latitude, longitude: startPoint.longitude },
+  //           ...routePath,
+  //           { latitude: endPoint.latitude, longitude: endPoint.longitude },
+  //         ]);
+  //         setLoading(false);
+  //       });
+  //   } catch (e) {
+  //     setLoading(false);
+  //     console.log(e);
+  //   }
+  // };
+  // useEffect(() => {
+  //   fetchData();
+  // }, [locationType, data]);
 
   const handleBack = () => {
     navigation.navigate(ROUTES.PICK_ORDER_DRIVER_TAB, { data: data });
@@ -76,7 +98,7 @@ const ViewDistance = ({ navigation, route }) => {
   return (
     <View className="flex-1 relative">
       <Spinner visible={loading} size="large" animation="fade" />
-      <MapView
+      {/* <MapView
         className="w-full h-full"
         region={region}
         initialRegion={INIT_REGION}
@@ -103,7 +125,7 @@ const ViewDistance = ({ navigation, route }) => {
             coordinates={routeCoordinates}
           />
         )}
-      </MapView>
+      </MapView> */}
 
       <View className="flex-row py-2 px-4 absolute top-12 left-5 right-5 bg-white border border-gray-200 rounded-xl">
         <TouchableOpacity

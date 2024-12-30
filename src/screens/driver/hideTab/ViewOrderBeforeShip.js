@@ -168,7 +168,7 @@ const ViewOrderBeforeShip = ({ navigation, route }) => {
               {formatCurrency(data?.payment.price)}
             </Text>
             <Text className="text-base font-medium text-gray-400 ">
-              {data?.payment.method.name}
+              {data?.payment?.paymentMethod}
             </Text>
           </View>
         </View>

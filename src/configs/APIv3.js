@@ -1,6 +1,6 @@
 import axios from "axios";
-export const BASE_URL = "http://192.168.100.52:8888/api/v3/";
-export const webSocketUrl = "http://192.168.100.52:8088/websocket/ws";
+export const BASE_URL = "http://192.168.100.7:8888/api/v3/";
+export const webSocketUrl = "http://192.168.100.7:8088/websocket/ws";
 export const END_POINTS = {
   "check-username-exists": "identity/accounts/check-username-exists",
   "check-email-exists": "identity/accounts/check-email-exists",
@@ -9,6 +9,9 @@ export const END_POINTS = {
   "register-user": "identity/accounts/registration",
   "find-all-vehicel": "post/vehicles",
   "find-all-product-category": "post/product-category",
+  "create-post": "post/posts",
+  "find-post-by-id": (id) => `post/posts/${id}`,
+  "find-post-by-status-list": (params) => `/api/posts?${params}`,
   "find-user-profile": (type) => `profile/users/my-profile?type=${type}`,
   "find-shipper-profile": "profile/shippers/my-profile",
   token: "/identity/auth/token",
@@ -32,9 +35,9 @@ export const virtualearthAutoSuggestv3 = (query) =>
     baseURL: `https://dev.virtualearth.net/REST/v1/Autosuggest?query=${query}&key=AiG0p7k1VuqiubVqZ22aZXS6HEih9Yg95wRzucCj_gRvT0HeaMMuanyX13L4qGfd`,
   });
 
-export const virtualearthDrivingv3 = (lat1, long1, lat2, long2) =>
+export const googMapDistanceMatrix = (origin, destination) =>
   axios.create({
-    baseURL: `https://dev.virtualearth.net/REST/v1/Routes/Driving?o=json&wp.0=${lat1},${long1}&wp.1=${lat2},${long2}&key=AiG0p7k1VuqiubVqZ22aZXS6HEih9Yg95wRzucCj_gRvT0HeaMMuanyX13L4qGfd`,
+    baseURL: `https://rsapi.goong.io/DistanceMatrix?origins=${origin}&destinations=${destination}&vehicle=car&api_key=mSU8H8q4TEUcZmaniecYM0Tm4RLQuKOqAC8kzhGr`,
   });
 
 export default axios.create({

@@ -14,7 +14,12 @@ import {
   formatDateTimeToVietnamese,
   getCurrentDate,
 } from "../../features/ultils";
-import { LOCATION, ROUTES, SHIPMENTYPE } from "../../constants";
+import {
+  DELIVERY_TIME_TYPE,
+  LOCATION,
+  ROUTES,
+  SHIPMENTYPE,
+} from "../../constants";
 import { useDispatch, useSelector } from "react-redux";
 import { setTypeChoosingLocation } from "../../redux/appSlice";
 import {
@@ -65,7 +70,7 @@ const LocationDatePicker = () => {
     {
       date: useSelector(getDate),
       time: useSelector(getTime),
-      shipmentType: useSelector(getShipmentType),
+      deliveryTimeType: useSelector(getShipmentType),
       showDateTimePicker: useSelector(isDateTimeFulFill),
     }
   );
@@ -77,7 +82,7 @@ const LocationDatePicker = () => {
     dispath(setShipmentTypeToNow());
     updateData({
       showDateTimePicker: false,
-      shipmentType: SHIPMENTYPE.NOW,
+      deliveryTimeType: DELIVERY_TIME_TYPE.NOW,
       date: null,
       time: null,
     });
@@ -89,7 +94,7 @@ const LocationDatePicker = () => {
       dispath(addTime(data.time));
       updateData({
         showDateTimePicker: false,
-        shipmentType: SHIPMENTYPE.LATTER,
+        deliveryTimeType: DELIVERY_TIME_TYPE.LATTER,
       });
       refRBSheet.current.close();
     }
@@ -187,7 +192,7 @@ const LocationDatePicker = () => {
             dispath(setShipmentTypeToNow());
             updateData({
               showDateTimePicker: false,
-              shipmentType: SHIPMENTYPE.NOW,
+              deliveryTimeType: DELIVERY_TIME_TYPE.NOW,
             });
           }
         }}
@@ -204,7 +209,7 @@ const LocationDatePicker = () => {
               <Ionicons name="alarm-outline" size={24} color="black" />
               <Text className="text-lg">Ngay bây giờ</Text>
             </View>
-            {data.shipmentType === SHIPMENTYPE.NOW && (
+            {data.deliveryTimeType === DELIVERY_TIME_TYPE.NOW && (
               <View className="absolute right-0">
                 <AntDesign name="checkcircle" size={26} color="#3422F1" />
               </View>
@@ -216,7 +221,7 @@ const LocationDatePicker = () => {
             onPress={() =>
               updateData({
                 showDateTimePicker: true,
-                shipmentType: SHIPMENTYPE.LATTER,
+                deliveryTimeType: DELIVERY_TIME_TYPE.LATTER,
               })
             }
           >
@@ -228,7 +233,7 @@ const LocationDatePicker = () => {
                   : "Đặt lịch giao và nhận hàng"}
               </Text>
             </View>
-            {data.shipmentType === SHIPMENTYPE.LATTER && (
+            {data.deliveryTimeType === DELIVERY_TIME_TYPE.LATTER && (
               <View className="absolute right-0">
                 <AntDesign name="checkcircle" size={26} color="#3422F1" />
               </View>

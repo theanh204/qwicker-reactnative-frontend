@@ -30,6 +30,7 @@ export const connectWebsocket = createAsyncThunk(
       await socketClient.awaitConnect();
       return socketClient;
     } catch (e) {
+      console.error("cannot connect to websocket");
       return rejectWithValue(e);
     }
   }

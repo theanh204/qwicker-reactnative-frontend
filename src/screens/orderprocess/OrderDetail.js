@@ -19,6 +19,7 @@ import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system";
 import { useDispatch, useSelector } from "react-redux";
 import { getProduct, setProduct } from "../../redux/productSlice";
+import { getCategories } from "../../redux/appSlice";
 
 const massType = [
   { id: 1, name: "Nhẹ hơn 10 kg" },
@@ -29,6 +30,7 @@ const massType = [
 const OrderDetail = ({ navigation }) => {
   const dispatch = useDispatch();
   const categories = useSelector(getCategories);
+
   const initProduct = useSelector(getProduct);
   const inputRef = useRef();
   const [productDetail, updateProductDetail] = useReducer(

@@ -76,7 +76,7 @@ const AccountRegister = ({ navigation }) => {
         //   email: email,
         //   username: username,
         // });
-        navigation.navigate(ROUTES.DRIVER_INFO_REGISTER);
+        navigation.navigate(ROUTES.AVATAR_REGISTER);
       } catch (err) {
         setLoading(false);
         console.log(err);

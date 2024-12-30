@@ -78,11 +78,67 @@ const fakePost = {
     name: "Xe Van 500 kg",
   },
 };
+
+const fakePostv3 = {
+  deliveryTimeType: "NOW",
+  deliveryTimeRequest: null,
+  description: "hang de vo",
+  dropDateTime: null,
+  dropLocation: {
+    addressLine: "Dong Thanh",
+    contact: "Anh C",
+    formattedAddress: "Dong Thanh Hoc Mon Ho Chi Minh",
+    id: "01d5d910-e236-4076-8759-220fe4c01b8d",
+    latitude: 10.832908477228857,
+    longitude: 106.66512466520459,
+    phoneNumber: "023485349",
+    postalCode: "2345",
+  },
+  history: null,
+  id: "d849502e-ed12-4e18-820d-31bb242bac25",
+  payment: {
+    paymentMethod: "VNPAY",
+    postId: "d849502e-ed12-4e18-820d-31bb242bac25",
+    posterPay: false,
+    price: 200000,
+  },
+  pickupDatetime: null,
+  pickupLocation: {
+    addressLine: "Dong Thanh",
+    contact: "Chi A",
+    formattedAddress: "Dong Thanh Hoc Mon Ho Chi Minh",
+    id: "63ac7568-c2e2-41c2-a52f-22fd15166a11",
+    latitude: 10.9063187,
+    longitude: 106.6481415,
+    phoneNumber: "023485349",
+    postalCode: "2345",
+  },
+  postTime: "2024-12-29T09:10:46.64681364",
+  product: {
+    category: {
+      id: "2",
+      name: "Văn phòng phẩm",
+    },
+    id: "25bb4d48-2e45-41e2-a028-85b40471d3a0",
+    image: null,
+    mass: "20Kg",
+    quantity: 234,
+  },
+  status: "WAITING_PAY",
+  vehicleType: {
+    capacity: "1.7 x 1.2 x 1.2 Mét Lên đến 500 kg",
+    description: "Hoạt Động Tất Cả Khung Giờ | Chở Tối Đa 500Kg * 1.5CBM",
+    icon: "https://res.cloudinary.com/dqpo9h5s2/image/upload/v1706106556/vehicle_icon/pkbqdybiilwiynh0yyxv.png",
+    id: "2",
+    name: "Xe Van 500 kg",
+  },
+};
+
 const FindOrderTab = ({ navigation, route }) => {
   const { access_token } = useSelector(getToken);
-  const { id } = useSelector(getShipperProfile);
+  const { accountId } = useSelector(getShipperProfile);
   const ws = useSelector(getSocket);
-  const [posts, setPosts] = useState([]);
+  const [posts, setPosts] = useState([fakePostv3]);
   const [filter, updateFilter] = useReducer(
     (prev, next) => ({
       ...prev,
@@ -114,11 +170,11 @@ const FindOrderTab = ({ navigation, route }) => {
     //-------------------------------------------------------------------------------------------
     let subscription = null;
     if (ws && ws.connected) {
-      subscription = ws.subscribe(`/topic/shipper/${id}`, (message) => {
+      subscription = ws.subscribe(`/topic/shipper/${accountId}`, (message) => {
         const messageBody = JSON.parse(message.body);
-        if (messageBody.messageType === "DELIVERY_REQUEST") {
+        if (messageBody.postMessageType === "DELIVERY_REQUEST") {
           setPosts((prev) => {
-            return [messageBody.post, ...prev];
+            return [JSON.parse(messageBody.postResponse), ...prev];
           });
         }
       });

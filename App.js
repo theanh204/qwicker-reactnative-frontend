@@ -21,7 +21,6 @@ function App() {
     </Provider>
   );
 }
-
 const toastConfig = {
   /*
     Overwrite 'success' type,

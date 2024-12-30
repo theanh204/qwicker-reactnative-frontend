@@ -4,11 +4,12 @@
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
     "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "web": "expo start --web"
   },
   "dependencies": {
+    "@maplibre/maplibre-react-native": "^10.0.0-alpha.5",
     "@react-native-async-storage/async-storage": "1.23.1",
     "@react-native-community/datetimepicker": "8.2.0",
     "@react-native-google-signin/google-signin": "^11.0.0",
@@ -19,11 +20,12 @@
     "@react-navigation/native-stack": "^6.9.17",
     "@react-navigation/stack": "^6.3.20",
     "@reduxjs/toolkit": "^2.0.1",
+    "@rnmapbox/maps": "^10.1.33",
     "@stomp/stompjs": "^7.0.0",
     "axios": "^1.6.5",
     "dayjs": "^1.11.10",
     "deprecated-react-native-prop-types": "^5.0.0",
-    "expo": "^52.0.7",
+    "expo": "^52.0.23",
     "expo-auth-session": "~6.0.1",
     "expo-dev-client": "~5.0.7",
     "expo-image-picker": "~16.0.3",
@@ -65,12 +67,12 @@
     "rn-slide-button-updated": "^1.0.4",
     "socket.io-client": "^4.7.5",
     "sockjs-client": "^1.6.1",
-    "text-encoding": "^0.7.0",
-    "expo-random": "undefined"
+    "text-encoding": "^0.7.0"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
     "@types/sockjs-client": "^1.5.4",
+    "@react-native-community/cli": "latest",
     "tailwindcss": "3.3.2"
   },
   "private": true

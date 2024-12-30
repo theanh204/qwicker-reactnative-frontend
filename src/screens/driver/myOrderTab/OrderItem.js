@@ -68,7 +68,7 @@ const OrderItem = ({ data, TO_ROUTE }) => {
       <View className="flex-row justify-between items-center p-4">
         <View className="flex-row items-center space-x-1">
           <Ionicons name="cash-outline" size={24} color="#3422F1" />
-          <Text className="text-base">{data?.payment.method.name}</Text>
+          <Text className="text-base">{data?.payment?.paymentMethod}</Text>
         </View>
         <Text className="text-xl font-semibold">
           {formatCurrency(data?.payment?.price)}
