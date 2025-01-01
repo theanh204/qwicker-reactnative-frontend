@@ -246,3 +246,22 @@ export function getVNPaymentMethodName(method) {
     return "VnPay";
   } else return "Tien Mat";
 }
+
+export function calculateInitialRegion(startPoint, endPoint) {
+  if (!startPoint || !endPoint) {
+    throw new Error("Both startPoint and endPoint are required.");
+  }
+
+  const latitudeDelta = Math.abs(startPoint.latitude - endPoint.latitude) * 1.5;
+  const longitudeDelta =
+    Math.abs(startPoint.longitude - endPoint.longitude) * 1.5;
+
+  const initialRegion = {
+    latitude: (startPoint.latitude + endPoint.latitude) / 2,
+    longitude: (startPoint.longitude + endPoint.longitude) / 2,
+    latitudeDelta: latitudeDelta || 0.01, // Giá trị mặc định nhỏ nếu khoảng cách bằng 0
+    longitudeDelta: longitudeDelta || 0.01,
+  };
+
+  return initialRegion;
+}

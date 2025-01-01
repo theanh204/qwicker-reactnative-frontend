@@ -40,6 +40,26 @@ export const googMapDistanceMatrix = (origin, destination) =>
     baseURL: `https://rsapi.goong.io/DistanceMatrix?origins=${origin}&destinations=${destination}&vehicle=car&api_key=mSU8H8q4TEUcZmaniecYM0Tm4RLQuKOqAC8kzhGr`,
   });
 
+export const googMapDirection = (origin, destination) =>
+  axios.create({
+    baseURL: `https://rsapi.goong.io/Direction?origin=${origin}&destination=${destination}&vehicle=car&api_key=mSU8H8q4TEUcZmaniecYM0Tm4RLQuKOqAC8kzhGr`,
+  });
+
+export const googMapAutocomplete = (input) =>
+  axios.create({
+    baseURL: `https://rsapi.goong.io/Place/AutoComplete?api_key=mSU8H8q4TEUcZmaniecYM0Tm4RLQuKOqAC8kzhGr&input=${input}`,
+  });
+
+export const googMapGetDetailPlaceById = (id) =>
+  axios.create({
+    baseURL: `https://rsapi.goong.io/Place/Detail?place_id=${id}&api_key=mSU8H8q4TEUcZmaniecYM0Tm4RLQuKOqAC8kzhGr`,
+  });
+
+export const googMapReverseGeocoding = (latlng) =>
+  axios.create({
+    baseURL: `https://rsapi.goong.io/Geocode?latlng=${latlng}&api_key=mSU8H8q4TEUcZmaniecYM0Tm4RLQuKOqAC8kzhGr`,
+  });
+
 export default axios.create({
   baseURL: BASE_URL,
 });
