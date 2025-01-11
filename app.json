@@ -45,8 +45,21 @@
       [
         "@rnmapbox/maps",
         {
-          "RNMapboxMapsVersion": "11.0.0",
           "RNMapboxMapsDownloadToken": "sk.eyJ1IjoibnRoZWFuaDI4IiwiYSI6ImNtNTk0YWNkMzIwcXIybnMyaWtwamp2bmEifQ.7xxpyqpJ52z5sdj-pXu9_Q"
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          }
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Show current location on map."
         }
       ]
     ]

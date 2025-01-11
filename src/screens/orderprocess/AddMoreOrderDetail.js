@@ -9,7 +9,7 @@ import {
   Entypo,
   Foundation,
 } from "@expo/vector-icons";
-import { PAYMENT_METHOD, ROUTES, SHIPMENTYPE } from "../../constants";
+import { DELIVERY_TIME_TYPE, PAYMENT_METHOD, ROUTES } from "../../constants";
 import RBSheet from "react-native-raw-bottom-sheet";
 import { useDispatch, useSelector } from "react-redux";
 import { unwrapResult } from "@reduxjs/toolkit";
@@ -476,7 +476,7 @@ const AddMoreOrderDetail = ({ navigation }) => {
                 Thời gian nhận hàng
               </Text>
               <Text className="text-lg font-bold">
-                {shipmentData.type === SHIPMENTYPE.NOW
+                {shipmentData.deliveryTimeType === DELIVERY_TIME_TYPE.NOW
                   ? "Ngay bây giờ"
                   : formatDateTimeToVietnamese(
                       shipmentData.pickupDatetime.date,

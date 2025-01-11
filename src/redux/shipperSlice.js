@@ -11,6 +11,7 @@ import { getCurrentLocation, objectToFormData } from "../features/ultils";
 import APIv3, {
   authAPIv3,
   END_POINTS,
+  googMapDirection,
   googMapDistanceMatrix,
   virtualearthDrivingv3,
 } from "../configs/APIv3";
@@ -141,6 +142,19 @@ export const getDistance = createAsyncThunk(
     try {
       const res = await googMapDistanceMatrix(origin, destination).get();
       return res.data?.rows[0].elements[0].distance.text;
+    } catch (err) {
+      return rejectWithValue(err);
+    }
+  }
+);
+
+export const getDirection = createAsyncThunk(
+  "direction, getDirection",
+  async (data, { rejectWithValue }) => {
+    const { origin, destination } = data;
+    try {
+      const res = await googMapDirection(origin, destination).get();
+      return res?.data?.routes[0];
     } catch (err) {
       return rejectWithValue(err);
     }

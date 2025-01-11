@@ -17,9 +17,12 @@ import {
 } from "../../redux/shipmentSlice";
 import { getTypeChoosingLocation } from "../../redux/appSlice";
 import { LOCATION, ROUTES } from "../../constants";
-import { virtualearth, virtualearthAutoSuggest } from "../../configs/API";
 import useDebounce from "../../hooks/useDebouce";
 import Spinner from "react-native-loading-spinner-overlay";
+import {
+  googMapAutocomplete,
+  googMapGetDetailPlaceById,
+} from "../../configs/APIv3";
 const AddressInputer = ({ navigation }) => {
   const dispatch = useDispatch();
   const type = useSelector(getTypeChoosingLocation);
@@ -41,34 +44,56 @@ const AddressInputer = ({ navigation }) => {
     }
     navigation.goBack();
   };
-  const handleChooseLocation = useCallback((item) => {
-    switch (type) {
-      case LOCATION.pickupLocation:
-        dispatch(addPickUp(item));
-        break;
-      case LOCATION.dropLocation:
-        dispatch(addDeliveryAddress(item));
-        break;
-    }
-    navigation.navigate(ROUTES.MAP_STACK, { location: item });
-  }, []);
-
-  const fetchData = async () => {
+  const handleChooseLocation = useCallback(async (item) => {
     try {
       setLoading(true);
-      const response = await virtualearthAutoSuggest(debounceValue).get();
-      setAddressSuggest(response.data.resourceSets[0]?.resources[0]?.value);
+      const res = await googMapGetDetailPlaceById(item.place_id).get();
+      const geometry = res?.data?.result?.geometry?.location;
+      item = {
+        ...item,
+        latitude: geometry.lat,
+        longitude: geometry.lng,
+      };
+      switch (type) {
+        case LOCATION.pickupLocation:
+          dispatch(addPickUp(item));
+          break;
+        case LOCATION.dropLocation:
+          dispatch(addDeliveryAddress(item));
+          break;
+      }
+      setLoading(false);
+      navigation.navigate(ROUTES.MAP_STACK, { location: item });
+    } catch (e) {
+      console.log(e);
+      setLoading(false);
+    }
+  }, []);
+
+  const fetchLocation = async () => {
+    try {
+      setLoading(true);
+      const res = await googMapAutocomplete(debounceValue).get();
+      const predictions = res?.data?.predictions.map((prediction) => {
+        const { place_id, description, structured_formatting } = prediction;
+        return {
+          place_id,
+          addressLine: structured_formatting?.main_text || "",
+          formattedAddress: description || "",
+        };
+      });
+      setAddressSuggest(predictions);
       setLoading(false);
     } catch (e) {
+      console.log(e);
       setLoading(false);
     }
   };
-
   useEffect(() => {
     if (!debounceValue.trim()) {
       return;
     }
-    fetchData();
+    fetchLocation();
   }, [debounceValue]);
 
   useEffect(() => {
@@ -115,42 +140,24 @@ const AddressInputer = ({ navigation }) => {
           className="px-4 absolute top-28 left-5 right-5"
           data={addressSuggest}
           renderItem={({ item }) => {
-            const address = item.address;
-            let title = "";
-            let content = "";
-            switch (item.__type) {
-              case "Address":
-                title = address.addressLine;
-                content = address.formattedAddress;
-                break;
-              case "Place":
-                title =
-                  address.addressLine ||
-                  address.adminDistrict2 ||
-                  address.adminDistrict;
-                content = address.formattedAddress;
-                break;
-              case "LocalBusiness":
-                title = item.name;
-                content = address.formattedAddress;
-            }
-            if (title === content) return;
             return (
               <TouchableOpacity
-                onPress={() => handleChooseLocation(item.address)}
+                onPress={() => handleChooseLocation(item)}
                 className="w-full flex-row mb-8"
               >
                 <View className="basis-1/8 flex justify-center items-center">
                   <Foundation name="marker" size={24} color="black" />
                 </View>
                 <View className="basis-7/8 pl-4 flex-col flex-shrink-0">
-                  <Text className="text-lg font-semibold">{title}</Text>
-                  <Text className="text-gray-600">{content}</Text>
+                  <Text className="text-lg font-semibold">
+                    {item.addressLine}
+                  </Text>
+                  <Text className="text-gray-600">{item.formattedAddress}</Text>
                 </View>
               </TouchableOpacity>
             );
           }}
-          keyExtractor={(item) => item.address.formattedAddress}
+          keyExtractor={(item) => item.place_id}
           showsVerticalScrollIndicator={false}
         />
       )}
