@@ -140,10 +140,10 @@ const PickOrder = ({ route, navigation }) => {
   };
 
   const viewDistance = async (type) => {
+    setLoading(true);
+    const startPoint = await getCurrentLocation();
+    setLoading(false);
     if (type === LOCATION.pickupLocation) {
-      setLoading(true);
-      const startPoint = await getCurrentLocation();
-      setLoading(false);
       navigation.navigate(ROUTES.DRIVER_VIEW_DISTANCE, {
         locationType: type,
         startPoint: startPoint,
@@ -152,7 +152,7 @@ const PickOrder = ({ route, navigation }) => {
       });
     } else {
       navigation.navigate(ROUTES.DRIVER_VIEW_DISTANCE, {
-        startPoint: pickupLocation,
+        startPoint: startPoint,
         endPoint: dropLocation,
         locationType: type,
         data: data,

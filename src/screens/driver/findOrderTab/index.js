@@ -10,12 +10,19 @@ import React, { useCallback, useEffect, useReducer, useState } from "react";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import LottieView from "lottie-react-native";
 import Order from "./Order";
-import { useSelector } from "react-redux";
-import { getShipperProfile, getToken } from "../../../redux/shipperSlice";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  getShipperProfile,
+  getToken,
+  setOfflie,
+  setOnline,
+} from "../../../redux/shipperSlice";
 import { useFetchPaginatedData } from "../../../hooks/useFetchPaginatedData";
-import { getSocket } from "../../../redux/socketSlice";
+import { connectWebsocket, getSocket } from "../../../redux/socketSlice";
 import { ALERT_TYPE, Toast } from "react-native-alert-notification";
 import { JOBSTATUS, POSTSTATUS } from "../../../constants";
+import { unwrapResult } from "@reduxjs/toolkit";
+import Spinner from "react-native-loading-spinner-overlay";
 
 const FILTER_DATA = [
   { id: 1, content: "Tất cả" },
@@ -27,57 +34,6 @@ const SORT_DATA = [
   { id: 1, content: "Thời gian" },
   { id: 2, content: "Địa điểm" },
 ];
-const fakePost = {
-  description: null,
-  dropDateTime: null,
-  dropLocation: {
-    addressLine: "Haiz",
-    contact: "Anh B",
-    formattedAddress: "Hazratganj, India",
-    id: "7706bf5c-a8a1-4a0f-aab7-c01df79dc9ee",
-    latitude: 26.85770416,
-    longitude: 80.94849396,
-    phoneNumber: "0123456789",
-    postalCode: "65191",
-  },
-  id: "441d2777-d462-4d79-a054-28090266c21b",
-  payment: {
-    id: "ea652992-2071-46a7-8250-90cfa5369a2a",
-    method: { name: "Tiền mặt" }, // Assuming method is an object, you may need to replace with appropriate data
-    paidAt: null,
-    posterPay: false,
-    price: 187000,
-  },
-  pickupDatetime: null,
-  pickupLocation: {
-    addressLine: "Nkqubela Road",
-    contact: "Chi A",
-    formattedAddress: "Nkqubela Road, Bhongweni, Kokstad, 4693, South Africa",
-    id: "926a7891-954c-41e8-bfe3-dbfdcd940f90",
-    latitude: 10.852196110485785,
-    longitude: 106.66718719016735,
-    phoneNumber: "0123456789",
-    postalCode: "72216",
-  },
-  postTime: "2024-08-25T21:20:52.278788",
-  product: {
-    category: { name: "Quần áo & Phụ kiện" }, // Assuming category is an object, you may need to replace with appropriate data
-    id: "8ec506b7-c5a8-4b44-8764-81b258a2e98e",
-    image:
-      "https://res.cloudinary.com/dqpo9h5s2/image/upload/v1724595654/qlm2d0vzwygissua058k.jpg",
-    mass: "Nhẹ hơn 10 kg",
-    quantity: 1,
-  },
-  requestType: "Now",
-  status: POSTSTATUS.CONFIRM_WITH_CUSTOMER,
-  vehicleType: {
-    capacity: "1.7 x 1.2 x 1.2 Mét Lên đến 500 kg",
-    description: "Hoạt Động Tất Cả Khung Giờ | Chở Tối Đa 500Kg * 1.5CBM",
-    icon: "https://res.cloudinary.com/dqpo9h5s2/image/upload/v1706106556/vehicle_icon/pkbqdybiilwiynh0yyxv.png",
-    id: "3",
-    name: "Xe Van 500 kg",
-  },
-};
 
 const fakePostv3 = {
   deliveryTimeType: "NOW",
@@ -138,7 +94,8 @@ const FindOrderTab = ({ navigation, route }) => {
   const { access_token } = useSelector(getToken);
   const { accountId } = useSelector(getShipperProfile);
   const ws = useSelector(getSocket);
-  const [posts, setPosts] = useState([fakePostv3]);
+  const [posts, setPosts] = useState([]);
+  const [isOnline, setIsOnline] = useState(true);
   const [filter, updateFilter] = useReducer(
     (prev, next) => ({
       ...prev,
@@ -150,7 +107,9 @@ const FindOrderTab = ({ navigation, route }) => {
       sortIndex: 1,
     }
   );
+  const dispatch = useDispatch();
   const fetcher = useFetchPaginatedData(access_token);
+  const [loading, setLoading] = useState(false);
   const handleClearFilter = () => {
     updateFilter({
       filterIndex: 1,
@@ -162,12 +121,6 @@ const FindOrderTab = ({ navigation, route }) => {
   };
 
   useEffect(() => {
-    //--------------Cho truong hop go back tu pickOrderTab khi post da duoc nhan boi shipper khac
-    if (route.params?.removePostID && posts.length > 0) {
-      const newPosts = posts.map((p) => p.id !== route.params?.removePostID);
-      setPosts(newPosts);
-    }
-    //-------------------------------------------------------------------------------------------
     let subscription = null;
     if (ws && ws.connected) {
       subscription = ws.subscribe(`/topic/shipper/${accountId}`, (message) => {
@@ -178,19 +131,13 @@ const FindOrderTab = ({ navigation, route }) => {
           });
         }
       });
-    } else {
-      Toast.show({
-        type: ALERT_TYPE.WARNING,
-        title: "Websocket hiện không hoạt động",
-        textBody: "Tạm thời bạn chưa thể nhận đơn",
-      });
     }
     return () => {
       if (subscription) {
         subscription.unsubscribe();
       }
     };
-  }, []);
+  }, [isOnline]);
 
   useEffect(() => {
     navigation.setOptions({
@@ -206,8 +153,97 @@ const FindOrderTab = ({ navigation, route }) => {
           />
         </TouchableOpacity>
       ),
+      title: "Đang làm việc",
+      headerTitle: () => (
+        <TouchableOpacity
+          onPress={handleToogleStatus}
+          className={`flex-row items-center border ${
+            isOnline ? "border-[#3422F1]" : "border-gray-600"
+          } rounded-2xl py-2 pl-6 pr-7`}
+        >
+          <Text
+            className={`font-medium ${
+              isOnline ? "text-[#3422F1]" : "text-gray-600"
+            }`}
+          >
+            {isOnline ? "Đang làm việc" : "Không hoạt động"}
+          </Text>
+          <View
+            className={`${
+              isOnline ? "bg-[#3422F1]" : "bg-gray-600"
+            } h-2 w-2 translate-x-3  rounded-full`}
+          ></View>
+        </TouchableOpacity>
+      ),
     });
-  }, []);
+  }, [navigation, isOnline]);
+  const handleToogleStatus = () => {
+    if (isOnline) {
+      Alert.alert("Tắt trạng thái hoạt động?", "", [
+        {
+          text: "Huỷ",
+          style: "cancel",
+        },
+        {
+          text: "OK",
+          onPress: () => {
+            setLoading(true);
+            dispatch(setOfflie(ws))
+              .then(unwrapResult)
+              .then((r) => {
+                setIsOnline(false);
+                setLoading(false);
+              })
+              .catch((e) => {
+                setIsOnline(false);
+                Toast.show({
+                  type: "error",
+                  text1: e,
+                });
+              });
+          },
+        },
+      ]);
+    } else {
+      Alert.alert("Bạn có thể nhận và giao hàng lúc này? ", "", [
+        {
+          text: "Huỷ",
+          style: "cancel",
+        },
+        {
+          text: "OK",
+          onPress: () => {
+            setLoading(true);
+            dispatch(connectWebsocket(access_token))
+              .then(unwrapResult)
+              .then((res) => {
+                dispatch(setOnline({ ws: res, shipperId: accountId }))
+                  .then(unwrapResult)
+                  .then((r) => {
+                    setIsOnline(true);
+                    setLoading(false);
+                  })
+                  .catch((e) => {
+                    setIsOnline(false);
+                    Toast.show({
+                      type: "error",
+                      text1: e,
+                    });
+                  });
+              })
+              .catch((e) => {
+                setLoading(false);
+                Toast.show({
+                  type: "error",
+                  text1: "Khong the ket noi toi websocket",
+                  text2: "Hay thu lai sau",
+                });
+              });
+          },
+        },
+      ]);
+    }
+  };
   // ---------------------Refesh order data--------------
   const [refreshing, setRefreshing] = useState(false);
   const onRefresh = useCallback(() => {
@@ -219,6 +255,8 @@ const FindOrderTab = ({ navigation, route }) => {
   }, []);
   return (
     <View className="relative flex-1 px-3 bg-gray-100 pb-20">
+      <Spinner visible={loading} size="large" animation="fade" />
+
       {/* ---------------Filter space--------------- */}
       {filter.showFilter && (
         <TouchableOpacity
@@ -302,7 +340,7 @@ const FindOrderTab = ({ navigation, route }) => {
         data={posts.length > 0 ? posts : [{ id: 1 }]}
         renderItem={({ item }) => {
           if (posts.length > 0) return <Order data={item} />;
-          else
+          if (isOnline) {
             return (
               <View className="flex justify-center items-center mt-24">
                 <LottieView
@@ -311,7 +349,7 @@ const FindOrderTab = ({ navigation, route }) => {
                   loop
                   autoPlay
                 />
-                <Text className="text-lg my-3 text-center">
+                <Text className="text-lg mb-5 text-center">
                   Thử xoá tuỳ chọn bộ lọc để xem thêm các đơn hàng
                 </Text>
                 <TouchableOpacity
@@ -324,6 +362,28 @@ const FindOrderTab = ({ navigation, route }) => {
                 </TouchableOpacity>
               </View>
             );
+          }
+          return (
+            <View className="flex justify-center items-center mt-24">
+              <LottieView
+                style={{ width: 250, height: 250 }}
+                source={require("../../../assets/animations/offline.json")}
+                loop
+                autoPlay
+              />
+              <Text className="text-lg mb-8 text-center">
+                Bật trạng thái hoạt động để nhận những đơn hàng mới nào!
+              </Text>
+              <TouchableOpacity
+                className="py-3 px-5 rounded-lg bg-[#3422F1]"
+                onPress={handleToogleStatus}
+              >
+                <Text className="text-white font-medium text-xl">
+                  Có thể giao hàng
+                </Text>
+              </TouchableOpacity>
+            </View>
+          );
         }}
         keyExtractor={(item) => item.id}
         refreshControl={

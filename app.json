@@ -1,67 +1,9 @@
 {
-  "expo": {
-    "name": "deliverymanagement",
-    "slug": "deliverymanagement",
-    "version": "1.0.0",
-    "orientation": "portrait",
-    "icon": "./src/assets/icon.png",
-    "userInterfaceStyle": "light",
-    "splash": {
-      "image": "./src/assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
-    "assetBundlePatterns": ["**/*"],
-    "newArchEnabled": true,
-    "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.qwicker.googleauthexporeactnative",
-      "infoPlist": {
-        "CFBundleURLTypes": [
-          {
-            "CFBundleURLSchemes": [
-              "com.googleusercontent.apps.297909054584-gdp0dd9vhljuo9n6sk0q59lope7i0r4v"
-            ]
-          }
-        ]
-      }
-    },
-    "android": {
-      "package": "com.qwicker.googleauthexporeactnative",
-      "adaptiveIcon": {
-        "foregroundImage": "./src/assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      }
-    },
-    "web": {
-      "favicon": "./src/assets/favicon.png"
-    },
-    "extra": {
-      "eas": {
-        "projectId": "6540b442-0052-4f81-92b4-253d27f3886d"
-      }
-    },
-    "plugins": [
-      [
-        "@rnmapbox/maps",
-        {
-          "RNMapboxMapsDownloadToken": "sk.eyJ1IjoibnRoZWFuaDI4IiwiYSI6ImNtNTk0YWNkMzIwcXIybnMyaWtwamp2bmEifQ.7xxpyqpJ52z5sdj-pXu9_Q"
-        }
-      ],
-      [
-        "expo-build-properties",
-        {
-          "android": {
-            "usesCleartextTraffic": true
-          }
-        }
-      ],
-      [
-        "expo-location",
-        {
-          "locationWhenInUsePermission": "Show current location on map."
-        }
-      ]
-    ]
-  }
+  "android": {
+    "package": "com.theanhmgt.deliverymanagement"
+  },
+  "ios": {
+    "bundleIdentifier": "com.theanhmgt.deliverymanagement"
+  },
+  "newArchEnabled": true
 }

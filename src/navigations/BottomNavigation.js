@@ -91,14 +91,7 @@ const BottomNavigation = () => {
         name={ROUTES.FIND_ORDER_DRIVER_TAB}
         component={FindOrderTab}
         options={() => ({
-          title: "Nhận hàng",
           headerShown: true,
-          headerTitle: () => (
-            <View className="flex-row items-center border border-[#3422F1] rounded-2xl py-2 pl-6 pr-7">
-              <Text className="font-medium text-[#3422F1]">Đang làm việc</Text>
-              <View className="h-2 w-2 translate-x-3 bg-[#3422F1] rounded-full"></View>
-            </View>
-          ),
         })}
       />
       <Tab.Screen

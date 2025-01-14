@@ -71,7 +71,7 @@ export const fetchVehicles = createAsyncThunk(
       const res = await APIv3.get(END_POINTS["find-all-vehicel"]);
       return res.data?.result;
     } catch (e) {
-      return rejectWithValue(e.response.data);
+      return rejectWithValue(e?.response?.data);
     }
   }
 );
@@ -81,10 +81,10 @@ export const fetchProductCategories = createAsyncThunk(
   async (form, { rejectWithValue }) => {
     try {
       const res = await APIv3.get(END_POINTS["find-all-product-category"]);
-
       return res.data.result;
     } catch (e) {
-      return rejectWithValue(e.response.data);
+      console.log(e);
+      return rejectWithValue(e?.response?.data);
     }
   }
 );

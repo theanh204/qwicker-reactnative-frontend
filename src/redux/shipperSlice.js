@@ -72,6 +72,10 @@ const shipperSlice = createSlice({
       .addCase(setOnline.fulfilled, (state, action) => {
         state.lastTimeoutId = action.payload;
         state.status = "idle";
+      })
+
+      .addCase(setOfflie.fulfilled, (state, acion) => {
+        state.lastTimeoutId = null;
       });
   },
 });
@@ -301,6 +305,26 @@ export const setOnline = createAsyncThunk(
       }
     } catch (err) {
       console.error("Error in setOnline:", err);
+      return rejectWithValue(err?.response || "An unexpected error occurred");
+    }
+  }
+);
+
+export const setOfflie = createAsyncThunk(
+  "offline,setOfflie",
+  async (ws, { getState, rejectWithValue, dispatch }) => {
+    const { shipperSlice } = getState();
+    const { lastTimeoutId } = shipperSlice;
+    console.log("LastTimeoutId: ", lastTimeoutId);
+
+    try {
+      if (lastTimeoutId) {
+        clearInterval(lastTimeoutId);
+        ws.deactivate();
+        console.log("Offline: Interval stopped.");
+      }
+    } catch (err) {
+      console.error("Error in setOfflie:", err);
       return rejectWithValue(err?.response || "An unexpected error occurred");
     }
   }

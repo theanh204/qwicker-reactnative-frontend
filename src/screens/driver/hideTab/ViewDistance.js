@@ -1,20 +1,10 @@
-import {
-  View,
-  Text,
-  Dimensions,
-  TouchableOpacity,
-  Image,
-  StyleSheet,
-} from "react-native";
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import MapView, { Circle, Marker, Polyline } from "react-native-maps";
+import { View, Text, TouchableOpacity, Image } from "react-native";
+import React, { useEffect, useRef, useState } from "react";
+import MapView, { Marker, Polyline } from "react-native-maps";
 import { MaterialIcons, Entypo } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
 import Spinner from "react-native-loading-spinner-overlay";
-import {
-  calculateInitialRegion,
-  getCurrentLocation,
-} from "../../../features/ultils";
+import { calculateInitialRegion } from "../../../features/ultils";
 import { LOCATION, ROUTES } from "../../../constants";
 import { getDirection, getShipperProfile } from "../../../redux/shipperSlice";
 import { unwrapResult } from "@reduxjs/toolkit";
@@ -22,15 +12,7 @@ var polyline = require("@mapbox/polyline");
 const ViewDistance = ({ navigation, route }) => {
   const { vehicle } = useSelector(getShipperProfile);
   const dispatch = useDispatch();
-  let {
-    startPoint = {
-      latitude: 10.842961424758958,
-      longitude: 106.62091775432197,
-    },
-    endPoint = { latitude: 10.822032030791492, longitude: 106.64086921452592 },
-    locationType,
-    data,
-  } = route?.params || {};
+  let { startPoint, endPoint, data } = route?.params || {};
   const [loading, setLoading] = useState(false);
   const mapRef = useRef(null);
   const [coordinates, setCoordinates] = useState([]);

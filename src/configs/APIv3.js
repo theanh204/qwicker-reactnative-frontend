@@ -1,6 +1,6 @@
 import axios from "axios";
-export const BASE_URL = "http://192.168.100.7:8888/api/v3/";
-export const webSocketUrl = "http://192.168.100.7:8088/websocket/ws";
+export const BASE_URL = "http://192.168.100.36:8888/api/v3/";
+export const webSocketUrl = "http://192.168.100.36:8088/websocket/ws";
 export const END_POINTS = {
   "check-username-exists": "identity/accounts/check-username-exists",
   "check-email-exists": "identity/accounts/check-email-exists",
