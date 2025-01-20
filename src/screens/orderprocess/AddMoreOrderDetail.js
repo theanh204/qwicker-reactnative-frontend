@@ -16,16 +16,25 @@ import { unwrapResult } from "@reduxjs/toolkit";
 import {
   INIT_PAYMENT,
   addPayment,
-  resetPaymentSlice,
+  saveStateAsTemp as saveStateAsTempPayment,
 } from "../../redux/paymentSlice";
 import {
   formatCurrency,
   formatDateTimeToVietnamese,
 } from "../../features/ultils";
-import { getShipment, resetShipmentSlice } from "../../redux/shipmentSlice";
-import { getSelectedVehicle, resetOrderSlice } from "../../redux/orderSlice";
-import { orderForm, resetOrder } from "../../redux/store";
-import { isProductFulFill, resetProductSlice } from "../../redux/productSlice";
+import {
+  getShipment,
+  saveStateAsTemp as saveStateAsTempShipment,
+} from "../../redux/shipmentSlice";
+import {
+  getSelectedVehicle,
+  saveStateAsTemp as saveStateAsTempOrder,
+} from "../../redux/orderSlice";
+import { orderForm } from "../../redux/store";
+import {
+  isProductFulFill,
+  saveStateAsTemp as saveStateAsProduct,
+} from "../../redux/productSlice";
 import { ALERT_TYPE, Toast } from "react-native-alert-notification";
 import {
   getBasicUserToken,
@@ -36,18 +45,38 @@ import {
 import Spinner from "react-native-loading-spinner-overlay";
 
 const AddMoreOrderDetail = ({ navigation }) => {
+  // === REDUX ===
   const dispatch = useDispatch();
   const shipmentData = useSelector(getShipment);
   const selectedVehicle = useSelector(getSelectedVehicle);
   const order = useSelector(orderForm);
   const { access_token } = useSelector(getBasicUserToken);
-  // Product
   const isProductFormFulFill = useSelector(isProductFulFill);
-  // Payment method
+  // === REF ===
   const paymentMethodBTS = useRef();
+  const couponBTS = useRef();
+  const placeOrderBTS = useRef();
+  // === STATE ===
   const [showPayer, setShowPayer] = useState(false);
   const [loading, setLoading] = useState(false);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(1.1);
+  const [coupon, setCoupon] = useState("");
+  // == EFFECT ===
+  // Fetch payment method
+  useEffect(() => {
+    // Set header option
+    navigation.getParent().setOptions({
+      headerShown: false,
+    });
+    navigation.setOptions({
+      headerLeft: () => (
+        <TouchableOpacity onPress={handleBack}>
+          <MaterialIcons name="keyboard-arrow-left" size={24} color="black" />
+        </TouchableOpacity>
+      ),
+    });
+  }, []);
+  // === HELPER ===
   // -1: init , 0: Vn Pay, 1.1 sender, 1.2: receiver
   const getPaymentMethodUI = (selectedPaymentMethod) => {
     result = {};
@@ -82,7 +111,6 @@ const AddMoreOrderDetail = ({ navigation }) => {
     setSelectedPaymentMethod(type);
     paymentMethodBTS.current.close();
   };
-
   const getDisPatchShipmentData = () => {
     let data = { ...INIT_PAYMENT };
 
@@ -100,9 +128,6 @@ const AddMoreOrderDetail = ({ navigation }) => {
     }
     return data;
   };
-  //coupon
-  const couponBTS = useRef();
-  const [coupon, setCoupon] = useState("");
   const handleAddCoupon = () => {
     if (coupon.length > 0) {
       dispatch(getCoupon({ access_token: access_token, key: coupon }))
@@ -134,8 +159,6 @@ const AddMoreOrderDetail = ({ navigation }) => {
         });
     }
   };
-  // Place order
-  const placeOrderBTS = useRef();
 
   const handleBack = () => {
     navigation.getParent().setOptions({
@@ -143,21 +166,6 @@ const AddMoreOrderDetail = ({ navigation }) => {
     });
     navigation.goBack();
   };
-
-  // Fetch payment method
-  useEffect(() => {
-    // Set header option
-    navigation.getParent().setOptions({
-      headerShown: false,
-    });
-    navigation.setOptions({
-      headerLeft: () => (
-        <TouchableOpacity onPress={handleBack}>
-          <MaterialIcons name="keyboard-arrow-left" size={24} color="black" />
-        </TouchableOpacity>
-      ),
-    });
-  }, []);
 
   const handleReviewOrder = () => {
     const data = getDisPatchShipmentData();
@@ -178,11 +186,10 @@ const AddMoreOrderDetail = ({ navigation }) => {
       .then(unwrapResult)
       .then((res) => {
         setLoading(false);
-
-        // dispatch(resetOrderSlice());
-        // dispatch(resetPaymentSlice());
-        // dispatch(resetProductSlice());
-        // dispatch(resetShipmentSlice());
+        dispatch(saveStateAsTempOrder());
+        dispatch(saveStateAsTempPayment());
+        dispatch(saveStateAsProduct());
+        dispatch(saveStateAsTempShipment());
         if (selectedPaymentMethod === 1.1 || selectedPaymentMethod === 1.2)
           navigation.navigate(ROUTES.ORDER_STATUS_STACK, { orderId: res.id });
         else {
@@ -279,6 +286,7 @@ const AddMoreOrderDetail = ({ navigation }) => {
         </TouchableOpacity>
         <RBSheet
           ref={paymentMethodBTS}
+          className="z-40"
           customStyles={{
             wrapper: {
               backgroundColor: "rgba(0,0,0,0.3)",

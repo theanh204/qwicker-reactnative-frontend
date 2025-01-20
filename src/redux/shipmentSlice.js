@@ -68,6 +68,13 @@ const shipmentSlice = createSlice({
     resetShipmentSlice: (state, action) => {
       Object.assign(state, INIT_STATE);
     },
+    saveStateAsTemp: (state, action) => {
+      const temp = state;
+      Object.assign(state, { temp: temp });
+    },
+    restoreStateFromTemp: (state, action) => {
+      Object.assign(state, state.temp);
+    },
     addPickUp: (state, action) => {
       for (var key in action.payload) {
         if (state.pickupLocation.hasOwnProperty(key)) {
@@ -135,6 +142,8 @@ export const {
   addCost,
   resetShipmentSlice,
   addDiscount,
+  saveStateAsTemp,
+  restoreStateFromTemp,
 } = shipmentSlice.actions;
 export const getShipmentType = (state) => state.shipment.deliveryTimeType;
 export const getPickUP = (state) => state.shipment.pickupLocation;

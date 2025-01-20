@@ -24,6 +24,13 @@ const productSlice = createSlice({
     resetProductSlice: (state, action) => {
       Object.assign(state.product, INIT_PRODUCT);
     },
+    saveStateAsTemp: (state, action) => {
+      const temp = state;
+      Object.assign(state, { temp: temp });
+    },
+    restoreStateFromTemp: (state, action) => {
+      Object.assign(state, state.temp);
+    },
     removeProductData: (state, action) => {
       state.product = INIT_PRODUCT;
     },
@@ -37,6 +44,11 @@ export const isProductFulFill = createSelector(getProduct, (product) => {
   const { categoryId, mass, quantity, file } = product;
   return categoryId && mass && quantity && file;
 });
-export const { removeProductData, setProduct, resetProductSlice } =
-  productSlice.actions;
+export const {
+  removeProductData,
+  setProduct,
+  resetProductSlice,
+  saveStateAsTemp,
+  restoreStateFromTemp,
+} = productSlice.actions;
 export default productSlice.reducer;

@@ -18,6 +18,13 @@ const paymentSlice = createSlice({
     resetPaymentSlice: (state, action) => {
       Object.assign(state, INIT_PAYMENT);
     },
+    saveStateAsTemp: (state, action) => {
+      const temp = state;
+      Object.assign(state, { temp: temp });
+    },
+    restoreStateFromTemp: (state, action) => {
+      Object.assign(state, state.temp);
+    },
     addPayment: (state, action) => {
       state.payment = action.payload;
     },
@@ -27,6 +34,11 @@ const paymentSlice = createSlice({
   },
 });
 export const getPayment = (state) => state.paymentSlice.payment;
-export const { addPayment, initPayment, resetPaymentSlice } =
-  paymentSlice.actions;
+export const {
+  addPayment,
+  initPayment,
+  resetPaymentSlice,
+  saveStateAsTemp,
+  restoreStateFromTemp,
+} = paymentSlice.actions;
 export default paymentSlice.reducer;

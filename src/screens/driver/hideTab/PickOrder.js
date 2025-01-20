@@ -23,6 +23,7 @@ import { LOCATION, ROUTES } from "../../../constants";
 import { CountdownCircleTimer } from "react-native-countdown-circle-timer";
 import { getSocket } from "../../../redux/socketSlice";
 const PickOrder = ({ route, navigation }) => {
+  // === PARAM ===
   const { data } = route.params;
   const {
     product,
@@ -32,16 +33,20 @@ const PickOrder = ({ route, navigation }) => {
     dropLocation,
     ...order
   } = data;
+  // === STATE ===
   const [showImage, setShowImage] = useState(false);
   const [loading, setLoading] = useState(false);
   const [distance, setDistance] = useState();
   const [numShipperJoin, setNumShipperJoin] = useState(2);
   const [isJoined, setIsJoined] = useState(false);
+  const [isPostTaken, setIsPostTaken] = useState(false);
+  // === SELECTOR ===
   const { id } = useSelector(getShipperProfile);
   const { access_token } = useSelector(getToken);
-  const [isPostTaken, setIsPostTaken] = useState(false);
-  const dispatch = useDispatch();
   const ws = useSelector(getSocket);
+  // === DISPATCH ===
+  const dispatch = useDispatch();
+  // === EFFECT ===
   useEffect(() => {
     setLoading(true);
     dispatch(
@@ -109,7 +114,7 @@ const PickOrder = ({ route, navigation }) => {
       }
     };
   }, [data]);
-
+  // === HELPER ===
   const handleJoinJob = () => {
     if (!isJoined && !isPostTaken) {
       setIsJoined(true);

@@ -283,13 +283,13 @@ export const setOnline = createAsyncThunk(
         return setInterval(async () => {
           const newLocation = await getCurrentLocation();
           const { shipperSlice } = getState();
-          const { location } = shipperSlice;
-
+          const { location, user } = shipperSlice;
           const body = {
             messageType: "UPDATE_SHIPPER_LOCATION",
             content: JSON.stringify({
               ...newLocation,
               shipperId: shipperId,
+              vehicleId: user.vehicleId,
             }),
           };
           if (location) {

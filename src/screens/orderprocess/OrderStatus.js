@@ -39,15 +39,27 @@ import { ALERT_TYPE, Toast } from "react-native-alert-notification";
 import { getSocket } from "../../redux/socketSlice";
 import { getDuration } from "../../redux/shipperSlice";
 import Spinner from "react-native-loading-spinner-overlay";
+import RBSheet from "react-native-raw-bottom-sheet";
+import { restoreStateFromTemp as restoreStateFromTempPayment } from "../../redux/paymentSlice";
+import { restoreStateFromTemp as restoreStateFromTempShipment } from "../../redux/shipmentSlice";
+import { restoreStateFromTemp as restoreStateFromTempOrder } from "../../redux/orderSlice";
+import { restoreStateFromTemp as restoreStateFromTempProduct } from "../../redux/productSlice";
 const { width, height } = Dimensions.get("window");
 
 const OrderStatus = ({ navigation, route }) => {
+  // === PARAMS ===
+  let { orderId } = route.params;
+  // === REDUX ===
   const dispatch = useDispatch();
   const { access_token } = useSelector(getBasicUserToken);
   const ws = useSelector(getSocket);
-  let { orderId } = route.params;
+  // === STATE ===
   const [post, setPost] = useState();
   const [shipper, setShipper] = useState();
+  const [startPoint, setStartPoint] = useState();
+  const [endPoint, setEndpoint] = useState();
+  const [shipperPoint, setShipperPoint] = useState();
+  const [loading, setLoading] = useState(false);
   const [mapViewData, setMapViewData] = useReducer(
     (prev, next) => ({
       ...prev,
@@ -58,12 +70,15 @@ const OrderStatus = ({ navigation, route }) => {
       routeCoordinates: [],
     }
   );
-  const [startPoint, setStartPoint] = useState();
-  const [endPoint, setEndpoint] = useState();
-  const [shipperPoint, setShipperPoint] = useState();
-  const [loading, setLoading] = useState(false);
-  // ---------------Marker Animation--------------
+  // === REF ===
+  const notFoundShipperState = useRef();
   const animatedColor = useRef(new Animated.Value(0)).current;
+  const animatedScale = useRef(new Animated.Value(0)).current;
+  const scale = animatedScale.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, 1],
+  });
+  // === ANIMATION ===
   const color = animatedColor.interpolate({
     inputRange: [0, 0.4, 0.8, 1],
     outputRange: [
@@ -73,11 +88,7 @@ const OrderStatus = ({ navigation, route }) => {
       "rgba(248, 113, 113,0)",
     ],
   });
-  const animatedScale = useRef(new Animated.Value(0)).current;
-  const scale = animatedScale.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0, 1], // <-- value that larger than your content's height
-  });
+  // === EFFECT ===
   useEffect(() => {
     let title = "Thông Tin Đơn Hàng Của Bạn";
     if (post?.status === JOBSTATUS.PENDING) {
@@ -94,38 +105,6 @@ const OrderStatus = ({ navigation, route }) => {
       headerTitle: title,
     });
   }, [post]);
-  const getRoutePaths = (p1, p2) => {
-    setLoading(true);
-    dispatch(
-      getDuration({
-        lat1: p1.latitude,
-        long1: p1.longitude,
-        lat2: p2.latitude,
-        long2: p2.longitude,
-      })
-    )
-      .then(unwrapResult)
-      .then((res) => {
-        const routePath = res.routeLegs[0].itineraryItems.map((route) => ({
-          latitude: route.maneuverPoint.coordinates[0],
-          longitude: route.maneuverPoint.coordinates[1],
-        }));
-        setMapViewData({
-          region: {
-            latitude: (p1.latitude + p2.latitude) / 2,
-            longitude: (p1.longitude + p2.longitude) / 2,
-            latitudeDelta: Math.abs(p1.latitude - p2.latitude) * 2,
-            longitudeDelta: Math.abs(p1.longitude - p2.longitude) * 2,
-          },
-          routeCoordinates: [p1, ...routePath, p2],
-        });
-        setLoading(false);
-      })
-      .catch((e) => {
-        setLoading(false);
-      });
-  };
-  //--------fetch post by id-------------
   useEffect(() => {
     let chanel = null;
     dispatch(retrieve({ access_token: access_token, orderId: orderId }))
@@ -285,12 +264,51 @@ const OrderStatus = ({ navigation, route }) => {
         </TouchableOpacity>
       ),
     });
-  });
+    notFoundShipperState.current.open();
+  }, []);
+  // === HELPER ===
+  const getRoutePaths = (p1, p2) => {
+    setLoading(true);
+    dispatch(
+      getDuration({
+        lat1: p1.latitude,
+        long1: p1.longitude,
+        lat2: p2.latitude,
+        long2: p2.longitude,
+      })
+    )
+      .then(unwrapResult)
+      .then((res) => {
+        const routePath = res.routeLegs[0].itineraryItems.map((route) => ({
+          latitude: route.maneuverPoint.coordinates[0],
+          longitude: route.maneuverPoint.coordinates[1],
+        }));
+        setMapViewData({
+          region: {
+            latitude: (p1.latitude + p2.latitude) / 2,
+            longitude: (p1.longitude + p2.longitude) / 2,
+            latitudeDelta: Math.abs(p1.latitude - p2.latitude) * 2,
+            longitudeDelta: Math.abs(p1.longitude - p2.longitude) * 2,
+          },
+          routeCoordinates: [p1, ...routePath, p2],
+        });
+        setLoading(false);
+      })
+      .catch((e) => {
+        setLoading(false);
+      });
+  };
   const handleBack = () => {
     navigation.getParent().setOptions({
       headerShown: true,
     });
     navigation.navigate("Đơn hàng");
+  };
+  const placeOrderAgain = () => {
+    dispatch(restoreStateFromTempPayment());
+    dispatch(restoreStateFromTempOrder());
+    dispatch(restoreStateFromTempShipment());
+    dispatch(restoreStateFromTempProduct());
   };
   return (
     <View className="flex-1 relative">
@@ -301,7 +319,6 @@ const OrderStatus = ({ navigation, route }) => {
         animation="fade"
         className="z-50 absolute left-0 top-0 right-0 bottom-0"
       /> */}
-
       {JOBSTATUS.PENDING === post?.status ? (
         <MapView
           region={{
@@ -557,6 +574,50 @@ const OrderStatus = ({ navigation, route }) => {
           </View>
         </View>
       </ScrollView>
+
+      <RBSheet
+        ref={notFoundShipperState}
+        closeOnPressMask={false}
+        customStyles={{
+          wrapper: {
+            backgroundColor: "rgba(0,0,0,0.3)",
+          },
+          draggableIcon: {
+            backgroundColor: "#000",
+          },
+          container: {
+            borderTopLeftRadius: 20,
+            borderTopRightRadius: 20,
+            overflow: "hidden",
+            height: 450,
+          },
+        }}
+      >
+        <View className="px-4 pb-8 flex-col justify-between">
+          <View className="flex-col py-4 items-center">
+            <Image
+              className="w-60 h-40"
+              source={require("../../assets/animations/looking.gif")}
+            />
+          </View>
+          <View className="mb-4">
+            <Text className="text-2xl font-bold">
+              Rất tiếc, không tìm thấy bác tài gần bạn
+            </Text>
+            <Text className="text-base mt-2">
+              Chúng tôi đang cố gắng hết sức để khắc phục tình huống này. Vui
+              lòng thử lại nếu bạn vẫn cần tìm người giao đơn hàng của bạn.
+            </Text>
+          </View>
+          <TouchableOpacity
+            activeOpacity={1}
+            onPress={placeOrderAgain}
+            className="flex justify-center items-center bg-[#3422F1] py-3 rounded-lg"
+          >
+            <Text className="text-lg font-bold text-white">Ok</Text>
+          </TouchableOpacity>
+        </View>
+      </RBSheet>
     </View>
   );
 };

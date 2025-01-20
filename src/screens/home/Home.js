@@ -1,4 +1,4 @@
-import { View, Text, Image, Animated, TouchableOpacity } from "react-native";
+import { View, Text, Animated, TouchableOpacity } from "react-native";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import CustomCarousel from "../../components/CustomCarousel";
 import Vehicle from "./Vehicle";
@@ -11,12 +11,21 @@ import { ROUTES } from "../../constants";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { formatCurrency } from "../../features/ultils";
 import { addCost } from "../../redux/shipmentSlice";
+import { getSelectedVehicle } from "../../redux/orderSlice";
 
 const Home = ({ navigation }) => {
+  // === STATE ===
+  const [vehicles, setVehicles] = useState(useSelector(getVehicles));
+  const [selectedVehicle, setSelectedVehicle] = useState(
+    useSelector(getSelectedVehicle)
+  );
+  // === REF ===
+  const scrollY = useRef(new Animated.Value(0)).current;
+  const scrollView = useRef();
+  // === REDUX ===
   const dispatch = useDispatch();
-  const initVehicles = useSelector(getVehicles);
-  const [vehicles, setVehicles] = useState(initVehicles);
-
+  const isFulfill = useSelector(isLocationAndShipmentFulfill);
+  // === EFFECT ===
   useEffect(() => {
     if (vehicles.length === 0) {
       dispatch(fetchVehicles())
@@ -28,19 +37,13 @@ const Home = ({ navigation }) => {
       headerShown: true,
     });
   }, []);
-
-  const [selectedVehicle, setSelectedVehicle] = useState(null);
-  const scrollY = useRef(new Animated.Value(0)).current;
-  const scrollView = React.createRef();
-
+  // === MEMO ===
   const cost = useMemo(() => (Math.floor(Math.random() * 200) + 50) * 1000);
+  // === HELPER ===
   const handleNextStep = () => {
     dispatch(addCost(cost));
     navigation.navigate(ROUTES.MORE_ORDER_DETAIL_STACK);
   };
-  const isFulfill = useSelector(isLocationAndShipmentFulfill);
-  //generates a random cost between 50,000 and 250,000
-  // Call api to get cost depend on picked location here
   return (
     <View className="flex-1 relative">
       <Animated.ScrollView
